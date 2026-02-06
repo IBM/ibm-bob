@@ -1,0 +1,294 @@
+name: Issue for BOB
+description: Report issues during your use of BOB.
+title: "[BOB-Issue]: "
+labels: ["needs-triage"]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for participating in the Bob evaluation! Your feedback helps us improve.
+        
+        **Note:** Labels will be automatically applied based on your selections below
+  
+
+  - type: dropdown
+    id: issue-type
+    attributes:
+      label: Feedback Type
+      description: "🏷️ Auto-labels: bug, performance, feature-request, usability, documentation, setup, mcp, security, feedback"
+      options:
+        - Bug / Error
+        - Performance Issue
+        - Feature Request
+        - Usability Issue
+        - Documentation Gap
+        - Installation / Setup Problem
+        - MCP Server Issue
+        - Security Concern
+        - General Feedback
+    validations:
+      required: true
+
+  - type: dropdown
+    id: severity
+    attributes:
+      label: Impact
+      description: "🏷️ Auto-labels: priority: blocker, critical, priority: high, priority: medium, priority: low, enhancement"
+      options:
+        - Blocker - Prevents BOB usage
+        - Critical - Major impact on BOB usage
+        - High - Affects key use cases
+        - Medium - Affects secondary use cases
+        - Low - Minor inconvenience
+        - Enhancement - Nice to have
+    validations:
+      required: true
+
+  - type: dropdown
+    id: bob-product
+    attributes:
+      label: Bob Product
+      description: "🏷️ Auto-labels: bob-ide, bobshell, multi-product"
+      options:
+        - Bob IDE (VS Code Extension)
+        - BobShell 
+        - Both
+    validations:
+      required: true
+
+  - type: input
+    id: version
+    attributes:
+      label: Bob Version
+      description: Check Help > About in VS Code or run 'bobshell --version'
+      placeholder: "e.g., 0.0.11"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: mode
+    attributes:
+      label: Mode (if applicable)
+      description: "🏷️ Auto-labels: mode-ask, mode-code, mode-plan, mode-advanced, mode-custom"
+      options:
+        - "❓ Ask"
+        - "💻 Code"
+        - "📝 Plan"
+        - "🛠️ Advanced"
+        - Custom Mode
+        - Not applicable
+    validations:
+      required: false
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        ## 📋 Issue Details
+
+  - type: textarea
+    id: use-case
+    attributes:
+      label: Use Case
+      description: What were you trying to accomplish? (Minimum 20 characters)
+      placeholder: "Example: I was trying to refactor a large Python codebase by asking Bob to extract common functions into a utility module"
+    validations:
+      required: true
+
+  - type: textarea
+    id: summary
+    attributes:
+      label: Issue Summary
+      description: Brief, clear summary (1-2 sentences, minimum 30 characters)
+      placeholder: "Example: Bob reports task completion but doesn't perform the requested action. The file remains unchanged despite Bob claiming success."
+    validations:
+      required: true
+
+  - type: textarea
+    id: description
+    attributes:
+      label: Detailed Description
+      description: Provide detailed information about what happened (Minimum 50 characters)
+      placeholder: |
+        Describe the issue in detail:
+        - What exactly happened?
+        - What was the context?
+        - What did Bob do or not do?
+        - Any error messages or unexpected behavior?
+    validations:
+      required: true
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        ## 🔄 Reproduction
+
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: Steps to Reproduce
+      description: For bugs, please provide clear steps (Required for bug reports)
+      placeholder: |
+        1. Open Bob in VS Code
+        2. Select "Code" mode
+        3. Ask Bob to "refactor the calculateTotal function"
+        4. Observe that...
+    validations:
+      required: false
+
+  - type: dropdown
+    id: reproducibility
+    attributes:
+      label: Reproducibility
+      description: How often does this issue occur?
+      options:
+        - Select reproducibility...
+        - Always (100% of the time)
+        - Frequently (>75% of the time)
+        - Sometimes (25-75% of the time)
+        - Rarely (<25% of the time)
+        - Once (cannot reproduce)
+    validations:
+      required: false
+
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: Expected Behavior
+      description: What should happen? (Recommended for bug reports)
+      placeholder: "Example: Bob should refactor the function and update all references to use the new implementation"
+    validations:
+      required: false
+
+  - type: textarea
+    id: actual-behavior
+    attributes:
+      label: Actual Behavior
+      description: What actually happens? (Recommended for bug reports)
+      placeholder: "Example: Bob says 'Task completed' but the file remains unchanged and no refactoring was performed"
+    validations:
+      required: false
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        ## 🖥️ Environment & Configuration
+
+  - type: textarea
+    id: environment
+    attributes:
+      label: Environment
+      description: Please fill in at least OS and Primary Language
+      value: |
+        **System:**
+        - OS: [e.g., macOS 14.1, Windows 11, Ubuntu 22.04]
+        - RAM: [e.g., 16GB]
+        - CPU: [e.g., M1, Intel i7]
+        
+        **Project:**
+        - Project Type: [e.g., Web app, CLI tool, Library]
+        - Project Size: [e.g., Small (<100 files), Medium (100-1000), Large (>1000)]
+        - Primary Language: [e.g., Python, JavaScript, Java]
+    validations:
+      required: true
+
+  - type: textarea
+    id: mcp-config
+    attributes:
+      label: MCP Configuration (if applicable)
+      description: List configured MCP servers and their status
+      placeholder: |
+        - Server Name: [status: connected/disconnected]
+        - Server Name: [status: connected/disconnected]
+        
+        Are you using MCP servers? If yes, which ones?
+    validations:
+      required: false
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        ## 📸 Evidence
+
+  - type: textarea
+    id: error-logs
+    attributes:
+      label: Error Messages / Logs
+      placeholder: "Paste error messages here (remove sensitive information)"
+      render: shell
+    validations:
+      required: false
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots / Screen Recording
+      placeholder: "Drag and drop images or videos here"
+    validations:
+      required: false
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        ## 💡 Additional Information
+
+  - type: textarea
+    id: workaround
+    attributes:
+      label: Workaround (if found)
+      description: Have you found any temporary workaround?
+      placeholder: "Describe any workaround you've discovered"
+    validations:
+      required: false
+
+  - type: textarea
+    id: usage-impact
+    attributes:
+      label: Impact on your evaluation
+      description: How does this affect your Bob evaluation?
+      placeholder: |
+        - Blocks: [which objectives]
+        - Affects: [which evaluation criteria]
+        - Workaround available: [Yes/No]
+    validations:
+      required: false
+
+  - type: textarea
+    id: comparison
+    attributes:
+      label: Comparison with Alternatives (optional)
+      description: How does this compare to other tools you're evaluating?
+      placeholder: "If you're comparing Bob with other solutions, how does this issue compare?"
+    validations:
+      required: false
+
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional Context
+      placeholder: "Any other relevant information"
+    validations:
+      required: false
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        ## ✅ Checklist
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Pre-submission Checklist
+      options:
+        - label: I have searched existing issues to avoid duplicates
+          required: true
+        - label: I have removed all sensitive information (API keys, passwords, personal data)
+          required: true
+        - label: I have provided enough detail for the team to understand and reproduce the issue
+          required: true
