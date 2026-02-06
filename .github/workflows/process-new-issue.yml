@@ -1,0 +1,183 @@
+name: Process New Issue
+
+on:
+  issues:
+    types: [opened]
+
+jobs:
+  process-issue:
+    runs-on: ibm-x86-64-small
+    
+    permissions:
+      issues: write
+    
+    steps:
+      - name: Apply labels and format issue body
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue = context.payload.issue;
+            let body = issue.body || '';
+            const labels = ['needs-triage'];
+            
+            // ============================================
+            // PART 1: AUTO-LABELING
+            // ============================================
+            
+            const feedbackTypeMap = {
+              'Bug / Error': 'bug',
+              'Performance Issue': 'performance',
+              'Feature Request': 'feature-request',
+              'Usability Issue': 'user-experience',
+              'Documentation Gap': 'documentation',
+              'Installation / Setup Problem': 'installation',
+              'MCP Server Issue': 'mcp',
+              'Security Concern': 'security',
+              'General Feedback': 'feedback'
+            };
+            
+            const severityMap = {
+              'Blocker - Prevents BOB usage': 'priority: blocker',
+              'Critical - Major impact on BOB usage': 'critical',
+              'High - Affects key use cases': 'priority: high',
+              'Medium - Affects secondary use cases': 'priority: medium',
+              'Low - Minor inconvenience': 'priority: low',
+              'Enhancement - Nice to have': 'enhancement'
+            };
+            
+            const productMap = {
+              'Bob IDE (VS Code Extension)': 'bob-ide',
+              'BobShell': 'bobshell',
+              'Both': ['bob-ide', 'bobshell']
+            };
+            
+            const modeMap = {
+              '❓ Ask': 'mode-ask',
+              '💻 Code': 'mode-code',
+              '📝 Plan': 'mode-plan',
+              '🛠️ Advanced': 'mode-advanced',
+              'Custom Mode': 'mode-custom'
+            };
+            
+            const extractValue = (fieldName) => {
+              const regex = new RegExp(`### ${fieldName}\\s*\\n\\s*(.+?)\\s*(?:\\n|$)`, 's');
+              const match = body.match(regex);
+              return match ? match[1].trim() : null;
+            };
+            
+            // Extract and apply labels
+            const feedbackType = extractValue('Feedback Type');
+            if (feedbackType && feedbackTypeMap[feedbackType]) {
+              labels.push(feedbackTypeMap[feedbackType]);
+            }
+            
+            const severity = extractValue('Impact');
+            if (severity && severityMap[severity]) {
+              labels.push(severityMap[severity]);
+            }
+            
+            const product = extractValue('Bob Product');
+            if (product && productMap[product]) {
+              const productLabels = Array.isArray(productMap[product]) 
+                ? productMap[product] 
+                : [productMap[product]];
+              labels.push(...productLabels);
+            }
+            
+            const mode = extractValue('Mode \\(if applicable\\)');
+            if (mode && modeMap[mode]) {
+              labels.push(modeMap[mode]);
+            }
+            
+            const uniqueLabels = [...new Set(labels)];
+            
+            // ============================================
+            // PART 2: SMART FORMATTING
+            // ============================================
+            
+            const formatContent = (content) => {
+              if (!content || content.trim() === '' || content === '_No response_') {
+                return '_Not provided_';
+              }
+              if (content.includes('\n') && (content.match(/^[\s]{2,}/m) || content.match(/[{}();]/))) {
+                if (!content.trim().startsWith('```')) {
+                  return '```\n' + content.trim() + '\n```';
+                }
+              }
+              return content.trim();
+            };
+            
+            const sections = [
+              { header: '### Feedback Type', title: '## 🏷️ Classification', format: (c) => `**${c}**` },
+              { header: '### Impact', title: '', format: (c) => `**Impact:** ${c}` },
+              { header: '### Bob Product', title: '', format: (c) => `**Product:** ${c}` },
+              { header: '### Bob Version', title: '', format: (c) => `**Version:** \`${c}\`` },
+              { header: '### Mode \\(if applicable\\)', title: '', format: (c) => c !== '_No response_' ? `**Mode:** ${c}` : '' },
+              { header: '### Use Case', title: '\n---\n## 📋 Issue Details\n', format: (c) => c },
+              { header: '### Issue Summary', title: '', format: (c) => `> ${c}` },
+              { header: '### Detailed Description', title: '', format: (c) => c },
+              { header: '### Steps to Reproduce', title: '\n---\n## 🔄 Reproduction\n', format: (c) => c },
+              { header: '### Reproducibility', title: '', format: (c) => c !== '_No response_' ? `**Reproducibility:** ${c}` : '' },
+              { header: '### Expected Behavior', title: '', format: (c) => c !== '_No response_' ? `**Expected:** ${c}` : '' },
+              { header: '### Actual Behavior', title: '', format: (c) => c !== '_No response_' ? `**Actual:** ${c}` : '' },
+              { header: '### Environment', title: '\n---\n## 🖥️ Environment & Configuration\n', format: (c) => c },
+              { header: '### MCP Configuration \\(if applicable\\)', title: '', format: (c) => c !== '_No response_' ? c : '' },
+              { header: '### Error Messages / Logs', title: '\n---\n## 📸 Evidence\n', format: (c) => formatContent(c) },
+              { header: '### Screenshots / Screen Recording', title: '', format: (c) => c !== '_No response_' ? c : '' },
+              { header: '### Workaround \\(if found\\)', title: '\n---\n## 💡 Additional Information\n', format: (c) => c !== '_No response_' ? c : '' },
+              { header: '### Impact on your evaluation', title: '', format: (c) => c !== '_No response_' ? c : '' },
+              { header: '### Comparison with Alternatives \\(optional\\)', title: '', format: (c) => c !== '_No response_' ? c : '' },
+              { header: '### Additional Context', title: '', format: (c) => c !== '_No response_' ? c : '' },
+              { header: '### Pre-submission Checklist', title: '\n---\n## ✅ Checklist\n', format: (c) => c }
+            ];
+            
+            for (const section of sections) {
+              const regex = new RegExp(`^${section.header}\\s*\\n\\s*([\\s\\S]*?)(?=\\n### |$)`, 'm');
+              const match = body.match(regex);
+              
+              if (match) {
+                const content = match[1].trim();
+                const formattedContent = section.format(content);
+                
+                if (formattedContent) {
+                  const replacement = section.title + 
+                    (section.title && !section.title.endsWith('\n') ? '\n\n' : '') +
+                    section.header + '\n\n' + formattedContent;
+                  body = body.replace(match[0], replacement);
+                } else {
+                  body = body.replace(match[0], section.title);
+                }
+              }
+            }
+            
+            body = body.replace(/\n{4,}/g, '\n\n\n');
+            
+            // ============================================
+            // PART 3: APPLY CHANGES (Single API Call)
+            // ============================================
+            
+            // Preserve XX-external labels if they exist
+            const existingLabels = issue.labels.map(label => label.name);
+            const hasPPExternal = existingLabels.includes('PP-external');
+            const hasPocExternal = existingLabels.includes('poc-external');
+            
+            // Add XX-external to the labels if it was present
+            if (hasPPExternal && !uniqueLabels.includes('PP-external')) {
+              uniqueLabels.push('PP-external');
+            }
+            if (hasPocExternal && !uniqueLabels.includes('poc-external')) {
+              uniqueLabels.push('poc-external');
+            }
+            
+            await github.rest.issues.update({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issue.number,
+              body: body,
+              labels: uniqueLabels
+            });
+            
+            core.info(`✅ Applied ${uniqueLabels.length} labels: ${uniqueLabels.join(', ')}`);
+            core.info('✅ Formatted issue body with smart formatting');
+
+# Made with Bob

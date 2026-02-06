@@ -1,0 +1,175 @@
+name: Documentation Feedback
+description: Report issues or provide feedback about Bob documentation
+title: "[DOCS]: "
+labels: ["documentation", "needs-triage"]
+
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for helping us improve Bob's documentation! Your feedback ensures our docs are accurate, clear, and helpful.
+        
+        **Note:** Labels will be automatically applied based on your selections below.
+
+  - type: dropdown
+    id: bob-product
+    attributes:
+      label: Documentation For
+      description: "🏷️ Auto-labels: bob-ide, bobshell, multi-product"
+      options:
+        - Bob IDE (VS Code Extension)
+        - BobShell (CLI)
+        - Both
+        - General/Overview
+    validations:
+      required: true
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        ## 📄 Page/Section Information
+
+  - type: input
+    id: doc-url
+    attributes:
+      label: Documentation URL
+      description: Link to the specific page or section
+      placeholder: "e.g., https://pages.github.ibm.com/code-assistant/bob-docs/bobshell/install-and-setup/"
+    validations:
+      required: true
+
+  - type: input
+    id: section
+    attributes:
+      label: Section/Component
+      description: Specific section, heading, or component on the page
+      placeholder: "e.g., 'Installation Steps', 'API Reference', 'Configuration Options'"
+    validations:
+      required: false
+
+  - type: input
+    id: date-accessed
+    attributes:
+      label: Date Accessed
+      description: When did you access this documentation?
+      placeholder: "e.g., 2026-01-20"
+    validations:
+      required: false
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        ## 📝 Feedback Type
+
+  - type: dropdown
+    id: feedback-type
+    attributes:
+      label: What type of documentation issue is this?
+      description: "🏷️ Auto-labels: docs-error, docs-outdated, docs-unclear, docs-missing, docs-enhancement"
+      options:
+        - Inaccuracy or error
+        - Outdated information
+        - Unclear or confusing content
+        - Missing information
+        - Suggestion for improvement
+        - Other
+    validations:
+      required: true
+
+  - type: dropdown
+    id: priority
+    attributes:
+      label: Priority
+      description: "🏷️ Auto-labels: priority-high, priority-medium, priority-low"
+      options:
+        - High - Critical error or blocker
+        - Medium - Affects understanding
+        - Low - Minor improvement
+    validations:
+      required: true
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        ## 📋 Description
+
+  - type: textarea
+    id: issue-description
+    attributes:
+      label: What is your issue or feedback?
+      description: Clearly describe the documentation problem (Minimum 30 characters)
+      placeholder: |
+        Example: The installation command shown is outdated. It references version 0.0.8 but the current version is 0.0.11, causing installation failures.
+    validations:
+      required: true
+
+  - type: textarea
+    id: current-content
+    attributes:
+      label: Current Content (if applicable)
+      description: Quote or describe the current documentation content that needs improvement
+      placeholder: "Copy the exact text or describe what's currently documented"
+      render: markdown
+    validations:
+      required: false
+
+  - type: textarea
+    id: suggestions
+    attributes:
+      label: Suggested Content or Improvements
+      description: What would you like to see instead? How should it be improved?
+      placeholder: |
+        Provide your suggestions:
+        - What should be added, changed, or clarified?
+        - How would you explain it differently?
+        - What examples or details would help?
+    validations:
+      required: false
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        ## 💡 Additional Information
+
+  - type: textarea
+    id: context
+    attributes:
+      label: Additional Context
+      description: Any other relevant information about this documentation issue
+      placeholder: |
+        - What were you trying to accomplish when you found this issue?
+        - How did this documentation issue affect you?
+        - Any related documentation pages that might need similar updates?
+    validations:
+      required: false
+
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots (optional)
+      description: Add screenshots to help illustrate the issue
+      placeholder: "Drag and drop images here"
+    validations:
+      required: false
+
+  - type: markdown
+    attributes:
+      value: |
+        ---
+        ## ✅ Checklist
+
+  - type: checkboxes
+    id: checklist
+    attributes:
+      label: Pre-submission Checklist
+      options:
+        - label: I have searched existing issues to avoid duplicates
+          required: true
+        - label: I have provided the documentation URL
+          required: true
+        - label: I have clearly described the issue or suggestion
+          required: true
