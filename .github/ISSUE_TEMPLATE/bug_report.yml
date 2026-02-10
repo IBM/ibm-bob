@@ -52,7 +52,7 @@ body:
       description: "🏷️ Auto-labels: bob-ide, bobshell, multi-product"
       options:
         - Bob IDE (VS Code Extension)
-        - BobShell 
+        - Bob Shell 
         - Both
     validations:
       required: true
