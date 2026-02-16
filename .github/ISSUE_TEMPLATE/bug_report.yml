@@ -87,7 +87,7 @@ body:
         ---
         ## 📋 Issue Details
 
-   - type: textarea
+  - type: textarea
     id: summary
     attributes:
       label: Issue Summary
