@@ -35,7 +35,7 @@ body:
     attributes:
       label: Documentation URL
       description: Link to the specific page or section
-      placeholder: "e.g., https://pages.github.ibm.com/code-assistant/bob-docs/bobshell/install-and-setup/"
+      placeholder: "e.g., https://bob.ibm.com/docs/ide/getting-started/install"
     validations:
       required: true
 
@@ -128,48 +128,3 @@ body:
         - What examples or details would help?
     validations:
       required: false
-
-  - type: markdown
-    attributes:
-      value: |
-        ---
-        ## 💡 Additional Information
-
-  - type: textarea
-    id: context
-    attributes:
-      label: Additional Context
-      description: Any other relevant information about this documentation issue
-      placeholder: |
-        - What were you trying to accomplish when you found this issue?
-        - How did this documentation issue affect you?
-        - Any related documentation pages that might need similar updates?
-    validations:
-      required: false
-
-  - type: textarea
-    id: screenshots
-    attributes:
-      label: Screenshots (optional)
-      description: Add screenshots to help illustrate the issue
-      placeholder: "Drag and drop images here"
-    validations:
-      required: false
-
-  - type: markdown
-    attributes:
-      value: |
-        ---
-        ## ✅ Checklist
-
-  - type: checkboxes
-    id: checklist
-    attributes:
-      label: Pre-submission Checklist
-      options:
-        - label: I have searched existing issues to avoid duplicates
-          required: true
-        - label: I have provided the documentation URL
-          required: true
-        - label: I have clearly described the issue or suggestion
-          required: true
