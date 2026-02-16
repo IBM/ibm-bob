@@ -87,16 +87,7 @@ body:
         ---
         ## 📋 Issue Details
 
-  - type: textarea
-    id: use-case
-    attributes:
-      label: Use Case
-      description: What were you trying to accomplish? (Minimum 20 characters)
-      placeholder: "Example: I was trying to refactor a large Python codebase by asking Bob to extract common functions into a utility module"
-    validations:
-      required: true
-
-  - type: textarea
+   - type: textarea
     id: summary
     attributes:
       label: Issue Summary
@@ -118,58 +109,6 @@ body:
         - Any error messages or unexpected behavior?
     validations:
       required: true
-
-  - type: markdown
-    attributes:
-      value: |
-        ---
-        ## 🔄 Reproduction
-
-  - type: textarea
-    id: reproduction
-    attributes:
-      label: Steps to Reproduce
-      description: For bugs, please provide clear steps (Required for bug reports)
-      placeholder: |
-        1. Open Bob in VS Code
-        2. Select "Code" mode
-        3. Ask Bob to "refactor the calculateTotal function"
-        4. Observe that...
-    validations:
-      required: false
-
-  - type: dropdown
-    id: reproducibility
-    attributes:
-      label: Reproducibility
-      description: How often does this issue occur?
-      options:
-        - Select reproducibility...
-        - Always (100% of the time)
-        - Frequently (>75% of the time)
-        - Sometimes (25-75% of the time)
-        - Rarely (<25% of the time)
-        - Once (cannot reproduce)
-    validations:
-      required: false
-
-  - type: textarea
-    id: expected-behavior
-    attributes:
-      label: Expected Behavior
-      description: What should happen? (Recommended for bug reports)
-      placeholder: "Example: Bob should refactor the function and update all references to use the new implementation"
-    validations:
-      required: false
-
-  - type: textarea
-    id: actual-behavior
-    attributes:
-      label: Actual Behavior
-      description: What actually happens? (Recommended for bug reports)
-      placeholder: "Example: Bob says 'Task completed' but the file remains unchanged and no refactoring was performed"
-    validations:
-      required: false
 
   - type: markdown
     attributes:
