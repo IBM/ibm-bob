@@ -37,8 +37,8 @@ jobs:
             };
             
             const severityMap = {
-              'Blocker - Prevents BOB usage': 'priority: blocker',
-              'Critical - Major impact on BOB usage': 'critical',
+              'Blocker - Prevents Bob usage': 'priority: blocker',
+              'Critical - Major impact on Bob usage': 'critical',
               'High - Affects key use cases': 'priority: high',
               'Medium - Affects secondary use cases': 'priority: medium',
               'Low - Minor inconvenience': 'priority: low',

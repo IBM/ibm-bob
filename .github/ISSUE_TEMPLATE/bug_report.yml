@@ -1,6 +1,6 @@
-name: Issue for BOB
-description: Report issues during your use of BOB.
-title: "[BOB-Issue]: "
+name: Issue for Bob
+description: Report issues during your use of Bob.
+title: "[Bob-Issue]: "
 labels: ["needs-triage"]
 
 body:
@@ -36,8 +36,8 @@ body:
       label: Impact
       description: "🏷️ Auto-labels: priority: blocker, critical, priority: high, priority: medium, priority: low, enhancement"
       options:
-        - Blocker - Prevents BOB usage
-        - Critical - Major impact on BOB usage
+        - Blocker - Prevents Bob usage
+        - Critical - Major impact on Bob usage
         - High - Affects key use cases
         - Medium - Affects secondary use cases
         - Low - Minor inconvenience
