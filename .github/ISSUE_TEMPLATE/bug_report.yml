@@ -7,7 +7,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thank you for participating in the Bob evaluation! Your feedback helps us improve.
+        Thank you for your feedback on IBM Bob—we truly appreciate it. Please submit product enhancement requests, report product defects or security concerns, and provide feedback on product documentation here. For technical discussions, please visit the Bob Community on IBM TechXchange: https://ibm.biz/BdpMnK
         
         **Note:** Labels will be automatically applied based on your selections below
   
@@ -18,16 +18,11 @@ body:
       label: Feedback Type
       description: "🏷️ Auto-labels: bug, performance, feature-request, usability, documentation, setup, mcp, security, feedback"
       options:
-        - Bug / Error
-        - Performance Issue
+        - Product Bug
         - Feature Request
-        - Usability Issue
         - Documentation Gap
-        - Installation / Setup Problem
-        - MCP Server Issue
         - Security Concern
-        - General Feedback
-    validations:
+            validations:
       required: true
 
   - type: dropdown
@@ -36,8 +31,6 @@ body:
       label: Impact
       description: "🏷️ Auto-labels: priority: blocker, critical, priority: high, priority: medium, priority: low, enhancement"
       options:
-        - Blocker - Prevents Bob usage
-        - Critical - Major impact on Bob usage
         - High - Affects key use cases
         - Medium - Affects secondary use cases
         - Low - Minor inconvenience
