@@ -22,7 +22,7 @@ body:
         - Feature Request
         - Documentation Gap
         - Security Concern
-            validations:
+    validations:
       required: true
 
   - type: dropdown
