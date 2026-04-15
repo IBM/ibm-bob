@@ -7,7 +7,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        Thank you for your feedback on IBM Bob—we truly appreciate it. Please submit product enhancement requests, report product defects or security concerns, and provide feedback on product documentation here. For technical discussions, please visit the Bob Community on IBM TechXchange: https://ibm.biz/BdpMnK
+        Thank you for your feedback on IBM Bob—we truly appreciate it. Please submit product enhancement requests, report product defects or security concerns, and provide feedback on product documentation here. For technical assistance and discussions, please visit the Bob Community on IBM TechXchange: https://ibm.biz/BdpMnK
         
         **Note:** Labels will be automatically applied based on your selections below
   
