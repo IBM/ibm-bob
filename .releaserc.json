@@ -1,0 +1,35 @@
+{
+  "branches": ["main"],
+  "plugins": [
+    "@semantic-release/commit-analyzer",
+    "@semantic-release/release-notes-generator",
+    [
+      "@semantic-release/github",
+      {
+        "draftRelease": true,
+        "assets": [
+          {
+            "path": "dist/ibm-bob-*.tgz",
+            "label": "IBM Bob Helm Chart"
+          },
+          {
+            "path": "dist/ibm-bob-cluster-scoped-*.tgz",
+            "label": "IBM Bob Cluster-Scoped Helm Chart"
+          },
+          {
+            "path": "bobctl",
+            "label": "bobctl CLI"
+          },
+          {
+            "path": "config-template.yaml",
+            "label": "Installation Config Template"
+          },
+          {
+            "path": "config-ldap-template.yaml",
+            "label": "LDAP Config Template"
+          }
+        ]
+      }
+    ]
+  ]
+}
