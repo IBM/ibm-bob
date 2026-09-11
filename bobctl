@@ -1,0 +1,79 @@
+#!/usr/bin/env bash
+set -eo pipefail
+
+BOB_DIR=$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null; pwd 2>/dev/null)
+ROOT_DIR=$(dirname "$BOB_DIR")
+PATH=$ROOT_DIR/bin:$PATH
+
+# Global directory variables
+export BOB_LOG_DIR="${BOB_LOG_DIR:-$BOB_DIR/logs}"
+export BOB_WORK_DIR="${BOB_WORK_DIR:-$BOB_DIR/work}"
+export BOB_CONFIG_FILE="${BOB_CONFIG_FILE:-$BOB_DIR/config.yaml}"
+
+# shellcheck source=release/bin/utils.sh
+source "$BOB_DIR/bin/utils.sh"
+
+# Log the config file being used
+log_info "Using config file: $BOB_CONFIG_FILE"
+
+# Ensure log file location is always printed, even on error
+trap 'log_info "Log file written: $LOG_FILE"' EXIT
+
+# shellcheck source=release/bin/install.sh
+source "$BOB_DIR/bin/install.sh"
+
+# shellcheck source=release/bin/mirror-images.sh
+source "$BOB_DIR/bin/mirror-images.sh"
+
+# shellcheck source=release/bin/configure-ldap.sh
+source "$BOB_DIR/bin/configure-ldap.sh"
+
+# shellcheck source=release/bin/configure-tls.sh
+source "$BOB_DIR/bin/configure-tls.sh"
+
+# Main command dispatcher
+case "${1:-}" in
+  install)
+    shift
+    install_bob "$@"
+    ;;
+  upgrade)
+    shift
+    upgrade_bob "$@"
+    ;;
+  generate-cluster-resources)
+    shift
+    generate_cluster_resources "$@"
+    ;;
+  add-ldap)
+    shift
+    add_ldap "$@"
+    ;;
+  get-ca-cert)
+    shift
+    get_ca_cert "$@"
+    ;;
+  setup-route)
+    shift
+    setup_route "$@"
+    ;;
+  reset-route)
+    shift
+    reset_route "$@"
+    ;;
+  download-images)
+    shift
+    download_images "$@"
+    ;;
+  upload-images)
+    shift
+    upload_images "$@"
+    ;;
+  mirror-images)
+    shift
+    mirror_images "$@"
+    ;;
+  *)
+    usage
+    ;;
+esac

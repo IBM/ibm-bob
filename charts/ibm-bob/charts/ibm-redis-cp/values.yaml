@@ -1,0 +1,106 @@
+global:
+  arch: amd64
+  operatorNamespace: ""
+  instanceNamespace: ""
+  tetheredNamespaces: []
+  blockStorageClass: ""
+  fileStorageClass: ""
+  imagePullPrefix: icr.io 
+  imagePullSecret: ibm-entitlement-key
+  licenseAccept: false
+
+ibmRedisCp:
+  imageRegistryNamespaceOperator: cpopen
+  operatorImageDigest:
+    amd64: 01d15087454d4821ddb64bfbb3507530711251da21caa2b07b17b56d3572cfd8
+    ppc64le: e5ed57a985439f8c239a930c8e717d9fb2bb00829660105f4228f0a7cff4703f
+    s390x: 746c31f57294a99c6dabbf1555f39a36f67d1ac15f83ff2554556778b2b963c5
+
+resourceLabels:
+  icpdsupport/addOnId: ibm-redis-cp
+
+resourceAnnotations:
+  cloudpakId: eb9998dcc5d24e3eb5b6fb488f750fe2
+  cloudpakName: IBM Cloud Pak for Data
+  productID: eb9998dcc5d24e3eb5b6fb488f750fe2
+  productMetric: FREE
+  productName: IBM CloudPak Redis
+  alm-examples: |-
+    [{
+      "apiVersion": "redis.ibm.com/v1",
+      "kind": "Rediscp",
+      "metadata": {
+        "name": "ibm-redis-cp-operator-cr"
+      },
+      "spec": {
+        "podAnnotations": {
+          "cloudpakName": "IBM CloudPak Redis",
+          "cloudpakId": "eb9998dcc5d24e3eb5b6fb488f750fe2",
+          "productMetric": "FREE",
+          "productID": "eb9998dcc5d24e3eb5b6fb488f750fe2",
+          "productName": "IBM CloudPak Redis"
+        },
+        "labels": {
+          "icpdsupport/app": "api",
+          "icpdsupport/addOnId": "ibm-redis-cp",
+          "resource-source": "ibm-redis-cp",
+          "icpdsupport/module": "ibm-redis-cp"
+        },
+        "version": "1.3.1",
+        "scale_config": "medium",
+        "size": 3,
+        "haproxy_replicas": 2,
+        "cert_name": "ibm-redis-cp-operator-cr-cert",
+        "shutdown": false,
+        "credentialSecret": "redispwdsecret",
+        "redis_resources": {
+          "requests": {
+            "memory": "520Mi",
+            "ephemeral-storage": "10Mi",
+            "cpu": "533m"
+          },
+
+          "limits": {
+            "memory": "3Gi",
+            "ephemeral-storage": "1Gi",
+            "cpu": "2"
+          }
+        },
+
+        "redis_sentinel_resources": {
+          "requests": {
+            "memory": "49Mi",
+            "ephemeral-storage": "10Mi",
+            "cpu": "25m"
+          },
+
+          "limits": {
+            "memory": "512Mi",
+            "ephemeral-storage": "1Gi",
+            "cpu": "312m"
+          }
+        },
+
+        "redis_haproxy_resources": {
+          "requests": {
+            "memory": "63Mi",
+            "ephemeral-storage": "10Mi",
+            "cpu": "202m"
+          },
+
+          "limits": {
+            "memory": "1Gi",
+            "ephemeral-storage": "1Gi",
+            "cpu": "1"
+          }
+        },
+
+        "license": {
+          "accept": true
+        },
+
+        "affinity": "{\"podAntiAffinity\":{\"preferredDuringSchedulingIgnoredDuringExecution\":[{\"weight\":100,\"podAffinityTerm\":{\"labelSelector\":{\"matchLabels\":{\"redis-app\":\"ibm-redis-cp-operator-cr\"}},\"topologyKey\":\"kubernetes.io/hostname\"}}]}}",
+
+        "haproxy_affinity": "{\"podAntiAffinity\":{\"preferredDuringSchedulingIgnoredDuringExecution\":[{\"weight\":80,\"podAffinityTerm\":{\"labelSelector\":{\"matchLabels\":{\"redis-app\":\"ibm-redis-cp-operator-cr-haproxy\"}},\"topologyKey\":\"kubernetes.io/hostname\"}}]}}"
+      }
+    }]

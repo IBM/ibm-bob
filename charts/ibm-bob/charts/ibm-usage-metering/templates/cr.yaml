@@ -1,0 +1,33 @@
+---
+apiVersion: operator.ibm.com/v1
+kind: IBMUsageMetering
+metadata:
+  labels:
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: ibm-usage-metering-operator
+    component-id: {{ .Chart.Name }}
+  name: ibm-usage-metering-instance
+  namespace: {{ .Values.global.instanceNamespace | default .Release.Namespace  }}
+spec:
+  {{- $imagePullData := dict -}}
+
+  {{- /* Set license */ -}}
+  {{- $_ := set $imagePullData "license" (dict "accept" .Values.global.licenseAccept) -}}
+
+  {{- /* Handle createRBAC flag with priority: spec.createRBAC > createRBAC */ -}}
+  {{- $createRBAC := "" -}}
+  {{- if hasKey .Values.ibmUsageMetering.spec "createRBAC" -}}
+    {{- $createRBAC = .Values.ibmUsageMetering.spec.createRBAC | toString -}}
+  {{- else if hasKey .Values.ibmUsageMetering "createRBAC" -}}
+    {{- $createRBAC = .Values.ibmUsageMetering.createRBAC | toString -}}
+  {{- end -}}
+  {{- if eq (lower $createRBAC) "false" -}}
+    {{- $_ := set $imagePullData "createRBAC" false -}}
+  {{- end -}}
+
+  {{- /* If imagePullSecret is declared, append it to the list of secrets specified in IBMUsageMetering CR's spec (or create a new list if empty) */ -}}
+  {{- if .Values.global.imagePullSecret -}}
+    {{- $_ := set $imagePullData "containers" (dict "instance" (dict "imagePullSecrets" (prepend (default list ((.Values.ibmUsageMetering.spec.containers).instance).imagePullSecrets) .Values.global.imagePullSecret | uniq) ) )  -}}
+  {{- end -}}
+
+  {{- toYaml (mergeOverwrite .Values.ibmUsageMetering.spec $imagePullData) | nindent 2 }}

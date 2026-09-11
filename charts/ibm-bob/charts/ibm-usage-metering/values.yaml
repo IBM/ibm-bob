@@ -1,0 +1,13 @@
+---
+global:
+  licenseAccept: true
+  imagePullPrefix: icr.io
+  imagePullSecret: ibm-entitlement-key
+  operatorNamespace: ""
+  instanceNamespace: ""
+ibmUsageMetering:
+  spec: {}
+  imageRegistryNamespaceOperator: cpopen
+  imageRegistryNamespaceOperand: cpopen/cpfs
+  enableRoutes: true
+  createRBAC: true

@@ -1,0 +1,138 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    packageName: ibm-pg-operator
+  labels:
+    app.kubernetes.io/name: ibm-pg-operator
+    component-id: '{{ .Chart.Name }}'
+    icpdsupport/addOnId: ibm-pg-operator
+    icpdsupport/app: database
+    icpdsupport/module: ibm-pg-operator
+  name: ibm-pg-operator
+  namespace: '{{ .Values.global.operatorNamespace }}'
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: ibm-pg-operator
+  template:
+    metadata:
+      annotations:
+        productChargedContainers: All
+        productID: 494bca72144346eb972f63ee7341ada7
+        productMetric: FREE
+        productName: IBM Operator for PostgreSQL
+      labels:
+        app.kubernetes.io/name: ibm-pg-operator
+        component-id: '{{ .Chart.Name }}'
+        icpdsupport/addOnId: ibm-pg-operator
+        icpdsupport/app: database
+        icpdsupport/module: ibm-pg-operator
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/arch
+                operator: In
+                values:
+                - amd64
+                - s390x
+                - ppc64le
+      containers:
+      - args:
+        - controller
+        - --leader-elect
+        - --max-concurrent-reconciles=10
+        - --config-map-name=ibm-pg-operator-config
+        - --secret-name=ibm-pg-operator-config
+        - --webhook-port=9443
+        command:
+        - /manager
+        env:
+        - name: OPERATOR_IMAGE_NAME
+          value: '{{ .Values.ibmPgOperator.devImagePullPrefix | default .Values.global.imagePullPrefix
+            }}/{{ .Values.ibmPgOperator.operatorImageName }}@{{ index .Values.ibmPgOperator.operatorImageDigest
+            .Values.global.arch }}'
+        - name: OPERATOR_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: MONITORING_QUERIES_CONFIGMAP
+          value: ibm-pg-default-monitoring
+        envFrom:
+        - configMapRef:
+            name: ibm-pg-operator-config
+            optional: true
+        image: '{{ .Values.ibmPgOperator.devImagePullPrefix | default .Values.global.imagePullPrefix
+          }}/{{ .Values.ibmPgOperator.operatorImageName }}@{{ index .Values.ibmPgOperator.operatorImageDigest
+          .Values.global.arch }}'
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          failureThreshold: 4
+          httpGet:
+            path: /readyz
+            port: 9443
+            scheme: HTTPS
+        name: manager
+        ports:
+        - containerPort: 8080
+          name: metrics
+          protocol: TCP
+        - containerPort: 9443
+          name: webhook-server
+          protocol: TCP
+        readinessProbe:
+          failureThreshold: 3
+          httpGet:
+            path: /readyz
+            port: 9443
+            scheme: HTTPS
+        resources:
+          limits:
+            cpu: 1100m
+            ephemeral-storage: 500Mi
+            memory: 1Gi
+          requests:
+            cpu: 500m
+            ephemeral-storage: 250Mi
+            memory: 200Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          readOnlyRootFilesystem: true
+          seccompProfile:
+            type: RuntimeDefault
+        startupProbe:
+          failureThreshold: 6
+          httpGet:
+            path: /readyz
+            port: 9443
+            scheme: HTTPS
+          periodSeconds: 5
+        volumeMounts:
+        - mountPath: /controller
+          name: scratch-data
+        - mountPath: /run/secrets/pg.ibm.com/webhook
+          name: webhook-certificates
+      imagePullSecrets:
+      - name: '{{ .Values.global.imagePullSecret }}'
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      serviceAccountName: ibm-pg-operator
+      terminationGracePeriodSeconds: 10
+      volumes:
+      - emptyDir:
+          sizeLimit: 500Mi
+        name: scratch-data
+      - name: webhook-certificates
+        secret:
+          defaultMode: 420
+          optional: true
+          secretName: ibm-pg-webhook-cert

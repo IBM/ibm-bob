@@ -1,0 +1,98 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    component-id: {{ .Chart.Name }}
+    icpdsupport/addOnId: ibm-redis-cp
+  annotations:
+    {{- with .Values.resourceAnnotations }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+  name: ibm-redis-cp-operator
+  namespace: {{ .Values.global.operatorNamespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      control-plane: ibm-redis-cp-operator
+  template:
+    metadata:
+      annotations:
+        {{- with .Values.resourceAnnotations }}
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
+      labels:
+        control-plane: ibm-redis-cp-operator
+        icpdsupport/app: ibm-redis-cp
+        icpdsupport/module: ibm-redis-cp
+        component-id: {{ .Chart.Name }}
+        icpdsupport/addOnId: ibm-redis-cp
+        {{- with .Values.resourceLabels }}
+          {{- toYaml . | nindent 8 }}
+        {{- end }}
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/arch
+                operator: In
+                values:
+                - amd64
+                - ppc64le
+                - s390x
+      containers:
+        - name: ibm-redis-cp-operator
+          args:
+            - --enable-leader-election
+            - --leader-election-id=ibm-redis-cp-operator
+          image: "{{ .Values.global.imagePullPrefix }}/{{ .Values.ibmRedisCp.imageRegistryNamespaceOperator }}/ibm-redis-cp-operator@sha256:{{ index .Values.ibmRedisCp.operatorImageDigest .Values.global.arch }}"
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 6789
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 6789
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            privileged: false
+            readOnlyRootFilesystem: false
+            runAsNonRoot: true
+          {{- $watchNamespaces := .Values.global.tetheredNamespaces | default list -}}
+          {{- if .Values.global.instanceNamespace -}}
+            {{- $watchNamespaces = append $watchNamespaces .Values.global.instanceNamespace -}}
+          {{- end -}}
+          {{- $watchNamespaces = prepend $watchNamespaces .Values.global.operatorNamespace }}
+          env:
+          - name: ANSIBLE_GATHERING
+            value: explicit
+          - name: WATCH_NAMESPACE
+            value: "{{ uniq $watchNamespaces | join "," }}"
+          - name: OPERATOR_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+          resources:
+            limits:
+              cpu: 750m
+              ephemeral-storage: 750Mi
+              memory: 1536Mi
+            requests:
+              cpu: 100m
+              ephemeral-storage: 250Mi
+              memory: 256Mi
+      imagePullSecrets:
+        - name: {{ .Values.global.imagePullSecret }}
+      serviceAccount: ibm-redis-cp-operator-serviceaccount
+      serviceAccountName: ibm-redis-cp-operator-serviceaccount
+      terminationGracePeriodSeconds: 10

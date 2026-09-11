@@ -1,0 +1,16 @@
+---
+# global values
+global:
+  operatorNamespace: ibm-bob-operators
+  instanceNamespace: ibm-bob
+# subchart enablement
+ibm-usage-metering:
+  enabled: true
+ibm-pg-operator:
+  enabled: true
+ibm-redis-cp:
+  enabled: true
+rhbk-operator:
+  enabled: true
+opencontent-opensearch:
+  enabled: false

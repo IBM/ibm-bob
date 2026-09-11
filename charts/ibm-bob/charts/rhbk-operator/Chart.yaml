@@ -1,0 +1,7 @@
+---
+apiVersion: v2
+name: rhbk-operator
+description: "Red Hat build of Keycloak Operator namespace scoped resources"
+type: application
+version: 26.6.4
+appVersion: 26.6.4-2

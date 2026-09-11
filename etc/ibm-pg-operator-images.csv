@@ -1,0 +1,12 @@
+icr.io,cpopen/ibm-pg-operator,v28.4.3,sha256:fc7bd7b9da937c701623261d9ba552cce5a4e83515472cc9f842a1e066dda141,list
+icr.io,cpopen/ibm-pg-operator,v28.4.3-linux.amd64,sha256:593293d42bf9e9ab1bf0ddadef36e0d57c00cc1f21e95ea4fe81e50755e29f63,amd64
+icr.io,cpopen/ibm-pg-operator,v28.4.3-linux.ppc64le,sha256:3d902de07ca819ba5f0c501abc0834600b5720a2906e563db0c2ed143bb550d6,ppc64le
+icr.io,cpopen/ibm-pg-operator,v28.4.3-linux.s390x,sha256:99f10f5b193e1151e9555a3ca0d60ae12f0813bf1658fd918b1ba6c4f658755c,s390x
+icr.io,cpopen/ibm-pg/ibm-pg-18,18.6-v28.4.3,sha256:8908bedd175d8e04878f505e986eb8240a9c1ef06f8f969803974151e5ea04d1,list
+icr.io,cpopen/ibm-pg/ibm-pg-18,18.6-v28.4.3-linux.amd64,sha256:e0bfac8987b4284b1049ab59beef8b74aed30098d758e66d184b3ca1a39280c3,amd64
+icr.io,cpopen/ibm-pg/ibm-pg-18,18.6-v28.4.3-linux.s390x,sha256:9e0658c7d6b3954ad83277ba6e93b126e7991f6899ab4be07bea1210bcfc3747,s390x
+icr.io,cpopen/ibm-pg/ibm-pg-18,18.6-v28.4.3-linux.ppc64le,sha256:5d618026c3c5d1b739fe0ee6d7140022fc75b6781e0411c69d5a42586d02b9e2,ppc64le
+icr.io,cpopen/ibm-pg/ibm-pg-pooler,1.25.2-v28.4.3,sha256:81369687193235613e65fff264d1e9e07d369ce6636e3b151b2dd9844ed459a5,list
+icr.io,cpopen/ibm-pg/ibm-pg-pooler,1.25.2-v28.4.3-linux.amd64,sha256:21daeb11ada4967bb9e1d6ad5864bd46c675c712da7480fddd9ba97bcb51910c,amd64
+icr.io,cpopen/ibm-pg/ibm-pg-pooler,1.25.2-v28.4.3-linux.s390x,sha256:093aaca70a17fd77522379893723d3927b06aa9afab259f894fcb4e95798056b,s390x
+icr.io,cpopen/ibm-pg/ibm-pg-pooler,1.25.2-v28.4.3-linux.ppc64le,sha256:068178d9af8036d2d17529255f9e38a013bd8ca0125206da93f83128aaff0e5c,ppc64le

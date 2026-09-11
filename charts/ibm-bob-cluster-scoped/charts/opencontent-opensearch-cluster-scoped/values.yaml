@@ -1,0 +1,8 @@
+## Default values for ibm-opensearch-operator-cluster-scoped.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+global:
+  operatorNamespace: ""
+opencontentOpensearch:
+  crdName: clusters.opensearch.cloudpackopen.ibm.com
+  apiVersion: v1

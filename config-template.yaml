@@ -1,0 +1,28 @@
+# Bob Helm Chart Override Values
+# This file contains custom values to override the default chart values
+# Modify these values according to your deployment requirements
+
+# Global settings
+global:
+  # arch: amd64
+  # operatorNamespace: ibm-bob-operators
+  # instanceNamespace: ibm-bob
+  # fileStorageClass: ""
+  # blockStorageClass: ""
+  # imagePullPrefix: icr.io
+  # imagePullSecret: ibm-entitlement-key
+
+# Bob-specific settings
+bob:
+  # rag:
+  #   enabled: false
+  # zProxy:
+  #   enabled: false
+  # modelGateway:
+  #   modelConfig: ""
+  #   secrets:
+  #     AWS_ACCESS_KEY: ""
+  #     AWS_SECRET_ACCESS_KEY: ""
+  #     BOB_AZURE_API_KEY: ""
+  #     BOB_GEMINI_CREDENTIALS: ""
+  #     RITS_APIKEY: ""

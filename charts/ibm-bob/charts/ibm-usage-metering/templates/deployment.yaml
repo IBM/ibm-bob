@@ -1,0 +1,91 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    productID: 068a62892a1e4db39641342e592daa25
+    productMetric: FREE
+    productName: IBM Cloud Platform Common Services
+  labels:
+    app.kubernetes.io/managed-by: kustomize
+    app.kubernetes.io/name: ibm-usage-metering-operator
+    control-plane: controller-manager
+    component-id: {{ .Chart.Name }}
+  name: ibm-usage-metering-operator
+  namespace: {{ .Values.global.operatorNamespace | default .Release.Namespace  }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      control-plane: controller-manager
+  template:
+    metadata:
+      annotations:
+        kubectl.kubernetes.io/default-container: ibm-usage-metering-operator
+        productID: 068a62892a1e4db39641342e592daa25
+        productMetric: FREE
+        productName: IBM Cloud Platform Common Services
+      labels:
+        app.kubernetes.io/managed-by: kustomize
+        app.kubernetes.io/name: ibm-usage-metering-operator
+        control-plane: controller-manager
+        intent: projected
+    spec:
+      containers:
+        - args:
+            - --leader-elect
+            - --health-probe-bind-address=:8081
+          command:
+            - ibm-usage-metering-operator
+          env:
+            - name: OPERATOR_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: OPERAND_NAMESPACES
+              value: {{ .Values.global.instanceNamespace | default .Release.Namespace  }}
+            - name: IBM_USAGE_METERING_OPERAND_IMAGE
+              value: {{ .Values.ibmUsageMetering.imagePullPrefix | default .Values.global.imagePullPrefix }}/{{ .Values.ibmUsageMetering.imageRegistryNamespaceOperand }}/ibm-usage-metering-instance@sha256:81946b523bc9671e9ab476303c8de261f1975e06db9f6aea41502b7c01408c3f
+            - name: ENABLE_ROUTES
+              value: {{ quote .Values.ibmUsageMetering.enableRoutes }}
+          image: {{ .Values.ibmUsageMetering.imagePullPrefix | default .Values.global.imagePullPrefix }}/{{ .Values.ibmUsageMetering.imageRegistryNamespaceOperator }}/ibm-usage-metering-operator@sha256:1318d9e4ebc22ea48fc1c8182e59d09fd121889a37b11b68b979cd55c0ab75c0
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8081
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          name: ibm-usage-metering-operator
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 8081
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            limits:
+              cpu: 500m
+              ephemeral-storage: 280Mi
+              memory: 128Mi
+            requests:
+              cpu: 10m
+              ephemeral-storage: 50Mi
+              memory: 64Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            privileged: false
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            seccompProfile:
+              type: RuntimeDefault
+      securityContext:
+        runAsNonRoot: true
+      serviceAccountName: ibm-usage-metering-operator
+      terminationGracePeriodSeconds: 10
+      {{ if .Values.global.imagePullSecret }}
+      imagePullSecrets:
+        - name: {{ .Values.global.imagePullSecret }}
+      {{- end -}}

@@ -1,0 +1,12 @@
+icr.io,cpopen/ibm-redis-cp-operator,1.3.1,sha256:21555bf64cefb36efe14027b4db0cf289fba74749f014a154e943db00f899b5c,list
+icr.io,cpopen/ibm-redis-cp-operator,1.3.1-amd64,sha256:01d15087454d4821ddb64bfbb3507530711251da21caa2b07b17b56d3572cfd8,amd64
+icr.io,cpopen/ibm-redis-cp-operator,1.3.1-ppc64le,sha256:e5ed57a985439f8c239a930c8e717d9fb2bb00829660105f4228f0a7cff4703f,ppc64le
+icr.io,cpopen/ibm-redis-cp-operator,1.3.1-s390x,sha256:746c31f57294a99c6dabbf1555f39a36f67d1ac15f83ff2554556778b2b963c5,s390x
+cp.icr.io,cp/ibm-redis-cp-haproxy,1.3.1,sha256:56a0eee3aa08b1a4a20bcec86a2e4fa7511d124b6cf91b37f5c4bfa09d559380,list
+cp.icr.io,cp/ibm-redis-cp-haproxy,1.3.1-amd64,sha256:6d1b319212ff5afad471c8dc957f16c14f94528ba7d2268a0ef389b4f9bd4ecc,amd64
+cp.icr.io,cp/ibm-redis-cp-haproxy,1.3.1-ppc64le,sha256:db90f5334752d708eac749be23066dbfb0e5a4adbabc5b4da354e549fa7d2ff6,ppc64le
+cp.icr.io,cp/ibm-redis-cp-haproxy,1.3.1-s390x,sha256:4ea4643b7d8d3e02dfdb41e4a059ffaa97f3ced6282e7b61f8cf608fd7059ade,s390x
+cp.icr.io,cp/ibm-redis-cp-operand,1.3.1,sha256:13cbd3b851a8f8624a79111e4e502d2128f53217505eee6693d7bda9f0a0bd58,list
+cp.icr.io,cp/ibm-redis-cp-operand,1.3.1-amd64,sha256:0973cc56f820f5d0bd01cba1405f1f0ee5f01813c3e808eb27554ab4a0e4d225,amd64
+cp.icr.io,cp/ibm-redis-cp-operand,1.3.1-ppc64le,sha256:2e0abe674c629268076c875771c14aa91c3b871dbade49b1b251ddd7d964a881,ppc64le
+cp.icr.io,cp/ibm-redis-cp-operand,1.3.1-s390x,sha256:1470358e876c9caab1965c8b462ab897b56a72c4c8db8b9ee0857effb920ad5b,s390x
