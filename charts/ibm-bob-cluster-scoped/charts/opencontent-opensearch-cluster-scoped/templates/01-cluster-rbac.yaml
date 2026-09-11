@@ -1,0 +1,29 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    component-id: {{ .Chart.Name }}
+    icpdsupport/addOnId: 'opencontent-opensearch'
+    rbac.authorization.k8s.io/aggregate-to-edit: 'true'
+  name: {{ .Values.opencontentOpensearch.crdName }}-{{ .Values.opencontentOpensearch.apiVersion }}-{{ .Values.global.operatorNamespace }}-edit
+rules:
+- apiGroups:
+  - opensearch.cloudpackopen.ibm.com
+  resources:
+  - clusters
+  - nodepools
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - opensearch.ibm.com.opensearch.ibm.com
+  resources:
+  - clusters/status
+  - nodepools/status
+  verbs:
+  - get

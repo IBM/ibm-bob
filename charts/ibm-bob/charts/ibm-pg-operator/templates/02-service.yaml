@@ -1,0 +1,16 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    component-id: '{{ .Chart.Name }}'
+    icpdsupport/addOnId: ibm-pg-operator
+    icpdsupport/app: database
+    icpdsupport/module: ibm-pg-operator
+  name: ibm-pg-webhook-service
+  namespace: '{{ .Values.global.operatorNamespace }}'
+spec:
+  ports:
+  - port: 443
+    targetPort: 9443
+  selector:
+    app.kubernetes.io/name: ibm-pg-operator

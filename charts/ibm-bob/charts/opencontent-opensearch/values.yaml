@@ -1,0 +1,30 @@
+# Default values for ibm-opensearch-operator.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# general values
+global:
+  arch: amd64
+  operatorNamespace: ""
+  instanceNamespace: ""
+  tetheredNamespaces: []
+  blockStorageClass: ""
+  storageVendor: ""
+  fileStorageClass: ""
+  imagePullPrefix: ""  # the top level of image registry only, which can be overridden by user's private registry input
+  imagePullSecret: ibm-entitlement-key
+  licenseType: Enterprise
+  licenseAccept: false
+# service values
+opencontentOpensearch:
+  crVersion: "" 
+  enableNetworkpolicies: "true"
+  operatorImagePullPrefix: icr.io
+  operatorImageName: "cpopen/opencontent-ibm-opensearch-operator" # including the sub folder in which the image is saved
+  operatorImageDigest:
+    amd64: "sha256:200a06dc6e89094c33ecd55c700c2dc880862cc26784b50500cad440913a726b" # pragma: allowlist-secret
+    ppc64le: "sha256:200a06dc6e89094c33ecd55c700c2dc880862cc26784b50500cad440913a726b" # supporting multi-arch here
+    s390x: "sha256:200a06dc6e89094c33ecd55c700c2dc880862cc26784b50500cad440913a726b"
+    arm64: "sha256:200a06dc6e89094c33ecd55c700c2dc880862cc26784b50500cad440913a726b"
+  entitledImagePullPrefix: cp.icr.io
+  entitledImageRegistryNamespace: cp

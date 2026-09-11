@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    component-id: '{{ .Chart.Name }}'
+    icpdsupport/addOnId: ibm-pg-operator
+    icpdsupport/app: database
+    icpdsupport/module: ibm-pg-operator
+  name: ibm-pg-operator-operand-images
+  namespace: {{ .Values.global.operatorNamespace }}
+data:
+
+  "postgres-18": {{ printf "%s/%s/%s:%s@%s" (default $.Values.global.imagePullPrefix $.Values.ibmPgOperator.devImagePullPrefix) $.Values.ibmPgOperator.operandImageRepository "ibm-pg-18" "18.6-v28.4.3" "sha256:8908bedd175d8e04878f505e986eb8240a9c1ef06f8f969803974151e5ea04d1" | quote }}
+
+  "postgres-17": {{ printf "%s/%s/%s:%s@%s" (default $.Values.global.imagePullPrefix $.Values.ibmPgOperator.devImagePullPrefix) $.Values.ibmPgOperator.operandImageRepository "ibm-pg-17" "17.11-v28.4.3" "sha256:0f153e9d5900ba0864eb8d5b6924edfa01bf36f1a47defe3814e8e9514023074" | quote }}
+
+  "postgres-16": {{ printf "%s/%s/%s:%s@%s" (default $.Values.global.imagePullPrefix $.Values.ibmPgOperator.devImagePullPrefix) $.Values.ibmPgOperator.operandImageRepository "ibm-pg-16" "16.15-v28.4.3" "sha256:5d120929b627afddc30ea67ee8fa7312217bd2a372ec2c0131eca68b82689fec" | quote }}
+

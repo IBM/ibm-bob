@@ -1,0 +1,109 @@
+# BobLDAP Configuration Template
+# Copy this file, name it anything, and fill in your values.
+# Run: ./bobctl add-ldap --config <filename>.yaml
+
+# name is the metadata.name for the BobLDAP CR.
+# Must be unique per LDAP provider. Use a short identifier, e.g. "corp-ldap".
+name: bluepages-ldap
+
+# ── Connection (Required) ─────────────────────────────────────────────────────
+
+# LDAP vendor — controls wire-level protocol behaviour in Keycloak.
+# Values: other | ad | rhds | tivoli | edirectory
+vendor: tivoli
+
+# Full LDAP or LDAPS URL including protocol and port.
+connectionUrl: ldaps://bluepages.ibm.com:636
+
+# DN of the subtree where user entries live.
+usersDn: ou=bluepages,o=ibm.com
+
+# LDAP attribute mapped to the Keycloak username.
+# Common values: uid (OpenLDAP), sAMAccountName (AD)
+usernameLDAPAttribute: uid
+
+# LDAP attribute used as the Relative Distinguished Name of user entries.
+# Typically the same as usernameLDAPAttribute (uid for OpenLDAP, sAMAccountName for AD).
+rdnLDAPAttribute: uid
+
+# Stable, immutable LDAP attribute used as the unique identifier for each user.
+# Common values: entryUUID (OpenLDAP), objectGUID (AD), uid (Tivoli/eDirectory)
+# Bluepages does not expose entryUUID — uid is the stable unique identifier.
+uuidLDAPAttribute: uid
+
+# Comma-separated list of LDAP object classes that identify a user entry.
+userObjectClasses: ePerson
+
+# ── Email domains (Required) ──────────────────────────────────────────────────
+
+# Email domains served by this directory. Users matching these domains are routed
+# to this LDAP-backed identity provider at login time.
+domains:
+  - ibm.com
+
+# Bootstrap specific users as bob-admin for this LDAP provider.
+# All other LDAP users are treated as regular bob-users.
+# adminEmails:
+#   - admin@example.com
+
+# ── Bind credentials (Optional — omit for anonymous bind) ─────────────────────
+
+# DN of the service account Keycloak uses to bind. Omit for anonymous bind.
+# bindDn: cn=bob-svc,ou=ServiceAccounts,dc=example,dc=com
+
+# Bind password — three options:
+#   1. Omit this block for anonymous bind.
+#   2. Pass --bind-password <value>: bobctl creates the secret using the name/key below.
+#   3. Pre-create the secret and set name/key in the block below.
+# bindPasswordSecret:
+#   name: ldap-bind-secret
+#   key: password
+
+# ── TLS (Optional) ────────────────────────────────────────────────────────────
+
+# When to use Keycloak's truststore for this connection (default: always).
+# Use "ldapsOnly" only if the cert is signed by a public CA (e.g. DigiCert, Let's Encrypt).
+# Use "never" for plain ldap:// without TLS.
+# Bluepages uses a publicly-trusted certificate — ldapsOnly avoids the need for a custom CA bundle.
+useTruststoreSpi: ldapsOnly
+
+# CA certificate — three options:
+#   1. Omit this block for publicly-trusted CAs or plain ldap://.
+#   2. Pass --ca-cert-file <path>: bobctl creates the secret using the name/key below.
+#   3. Pre-create the secret and set name/key in the block below.
+# ldapsCACertSecret:
+#   name: ldap-ca-cert
+#   key: ca.crt
+
+# ── Priority (Optional) ───────────────────────────────────────────────────────
+
+# Controls the order Keycloak queries LDAP providers when multiple are configured.
+# Lower numbers are checked first. Default: 0.
+# Priority 1 — Bluepages is the secondary provider, checked after customer LDAP.
+priority: 1
+
+# ── Search (Optional) ─────────────────────────────────────────────────────────
+
+# Search depth: 1 = one-level, 2 = subtree (default)
+searchScope: 2
+
+# Extra LDAP filter ANDed into every user search — use to exclude non-user entries.
+# Filter out service accounts that have no uid value.
+customUserSearchFilter: "(uid=*)"
+
+# Set to false for very large directories to resolve users on-demand at login only.
+# Disable bulk sync — millions of entries, resolve on-demand at login only.
+importEnabled: false
+
+# ── Attribute mappings (Optional) ─────────────────────────────────────────────
+
+# Maps LDAP attributes to Keycloak user model attributes.
+# The username mapper is generated automatically and does not need to be listed here.
+# preferredIdentity is single-valued; mail has two values and Keycloak rejects it.
+userAttributeMappings:
+  - ldapAttribute: preferredIdentity
+    userModelAttribute: email
+  - ldapAttribute: givenName
+    userModelAttribute: firstName
+  - ldapAttribute: sn
+    userModelAttribute: lastName

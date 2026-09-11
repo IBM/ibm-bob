@@ -1,0 +1,16 @@
+---
+# global values
+global:
+  operatorNamespace: ""
+  instanceNamespace: ""
+# Keycloak Operator
+rhbkOperator:
+  clusterPermissions:
+    - rules:
+        - apiGroups:
+            - config.openshift.io
+          resources:
+            - ingresses
+          verbs:
+            - get
+      serviceAccountName: rhbk-operator

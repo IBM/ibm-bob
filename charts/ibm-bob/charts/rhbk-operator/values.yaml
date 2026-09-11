@@ -1,0 +1,232 @@
+---
+# general values
+global:
+  arch: amd64
+  imagePullPrefix: icr.io
+  imagePullSecret: ibm-entitlement-key # pragma: allowlist secret
+  operatorNamespace: ""
+  instanceNamespace: ""
+  licenseAccept: false
+rhbkOperator:
+  crVersion: 1.0.0
+  devImagePullPrefix: ""
+  operatorImageName: cp/cpd/keycloak-rhel9-operator
+  operatorImageDigest:
+    amd64: sha256:2e00190cd88d026765df408d00a63cee8ceb3cd27ddb43e41b37c85936f4e926
+    s390x: sha256:9001751a094359aff990a279107720e8a8f944005845a829037eda826c09f6ef
+  operandImages:
+    keycloak:
+      imageName: cp/cpd/keycloak-rhel9
+      imageDigest:
+        amd64: sha256:ffedd9c68012f3ce5e6d3287775c589fcbe5ba6858afc6b2fd47663fce4b138b
+        s390x: sha256:4224e2d27ea23af7b50e15ba6df41fc35c2a550ab1e108dd8debed9f7d23fb45
+  resourceLabels:
+    app.kubernetes.io/instance: rhbk-operator
+    app.kubernetes.io/name: ibm-bob
+    control-plane: rhbk-operator
+    name: rhbk-operator
+  permissions:
+    - rules:
+        - apiGroups:
+            - apps
+          resources:
+            - statefulsets
+          verbs:
+            - get
+            - list
+            - watch
+            - create
+            - delete
+            - patch
+            - update
+        - apiGroups:
+            - ""
+          resources:
+            - configmaps
+          verbs:
+            - get
+            - list
+            - watch
+        - apiGroups:
+            - ""
+          resources:
+            - secrets
+            - services
+          verbs:
+            - get
+            - list
+            - watch
+            - create
+            - delete
+            - patch
+            - update
+        - apiGroups:
+            - ""
+          resources:
+            - pods
+          verbs:
+            - list
+        - apiGroups:
+            - ""
+          resources:
+            - pods/log
+          verbs:
+            - get
+        - apiGroups:
+            - batch
+          resources:
+            - jobs
+          verbs:
+            - get
+            - list
+            - watch
+            - create
+            - delete
+            - patch
+            - update
+        - apiGroups:
+            - networking.k8s.io
+          resources:
+            - ingresses
+          verbs:
+            - get
+            - list
+            - watch
+            - create
+            - delete
+            - patch
+            - update
+        - apiGroups:
+            - monitoring.coreos.com
+          resources:
+            - servicemonitors
+          verbs:
+            - create
+            - delete
+            - get
+            - list
+            - update
+            - watch
+            - patch
+        - apiGroups:
+            - k8s.keycloak.org
+          resources:
+            - keycloakrealmimports
+            - keycloakrealmimports/status
+            - keycloakrealmimports/finalizers
+          verbs:
+            - get
+            - list
+            - watch
+            - patch
+            - update
+            - create
+            - delete
+        - apiGroups:
+            - batch
+          resources:
+            - jobs
+          verbs:
+            - create
+            - delete
+            - get
+            - list
+            - patch
+            - watch
+        - apiGroups:
+            - ""
+          resources:
+            - secrets
+          verbs:
+            - create
+            - delete
+            - get
+            - list
+            - patch
+            - update
+            - watch
+        - apiGroups:
+            - k8s.keycloak.org
+          resources:
+            - keycloaks
+            - keycloaks/status
+            - keycloaks/finalizers
+          verbs:
+            - get
+            - list
+            - watch
+            - patch
+            - update
+            - create
+            - delete
+        - apiGroups:
+            - ""
+          resources:
+            - services
+          verbs:
+            - create
+            - delete
+            - get
+            - list
+            - patch
+            - update
+            - watch
+        - apiGroups:
+            - monitoring.coreos.com
+          resources:
+            - servicemonitors
+          verbs:
+            - create
+            - delete
+            - get
+            - list
+            - patch
+            - update
+            - watch
+        - apiGroups:
+            - networking.k8s.io
+          resources:
+            - networkpolicies
+          verbs:
+            - create
+            - delete
+            - get
+            - list
+            - patch
+            - update
+            - watch
+        - apiGroups:
+            - apps
+          resources:
+            - statefulsets
+          verbs:
+            - create
+            - delete
+            - get
+            - list
+            - patch
+            - update
+            - watch
+        - apiGroups:
+            - networking.k8s.io
+          resources:
+            - ingresses
+          verbs:
+            - create
+            - delete
+            - get
+            - list
+            - patch
+            - update
+            - watch
+        - apiGroups:
+            - ""
+          resources:
+            - secrets
+          verbs:
+            - create
+            - delete
+            - get
+            - list
+            - watch
+      serviceAccountName: rhbk-operator

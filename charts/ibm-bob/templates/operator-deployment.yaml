@@ -1,0 +1,113 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ibm-bob-operator
+  namespace: {{ .Values.global.operatorNamespace }}
+  annotations:
+    checksum/config: {{ include (print $.Template.BasePath "/bob-operand-images-configmap.yaml") . | sha256sum }}
+    checksum/model-secrets: {{ include (print $.Template.BasePath "/model-secrets.yaml") . | sha256sum }}
+    checksum/model-config: {{ include (print $.Template.BasePath "/model-config.yaml") . | sha256sum }}
+  labels:
+    control-plane: controller-manager
+    app.kubernetes.io/name: ibm-bob
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+spec:
+  selector:
+    matchLabels:
+      control-plane: controller-manager
+      app.kubernetes.io/name: ibm-bob-operator
+  replicas: 1
+  template:
+    metadata:
+      annotations:
+        kubectl.kubernetes.io/default-container: manager
+      labels:
+        control-plane: controller-manager
+        app.kubernetes.io/name: ibm-bob-operator
+        app.kubernetes.io/version: 0.11.0
+    spec:
+      {{- with .Values.bob.operator.topologySpreadConstraints }}
+      topologySpreadConstraints: {{ toYaml . | nindent 10 }}
+      {{- end }}
+      {{- with .Values.bob.operator.tolerations }}
+      tolerations: {{ toYaml . | nindent 10 }}
+      {{- end }}
+      {{- with .Values.bob.operator.nodeSelector }}
+      nodeSelector: {{ toYaml . | nindent 10 }}
+      {{- end }}
+      {{- with .Values.bob.operator.affinity }}
+      affinity: {{ toYaml . | nindent 10 }}
+      {{- end }}
+      securityContext:
+        # Projects are configured by default to adhere to the "restricted" Pod Security Standards.
+        # This ensures that deployments meet the highest security requirements for Kubernetes.
+        # For more details, see: https://kubernetes.io/docs/concepts/security/pod-security-standards/#restricted
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - command:
+            - /manager
+          args:
+            - --leader-elect=false
+            - --health-probe-bind-address=:8081
+          image: {{ print (include "bob.image.operatorPrefix" .) "/" .Values.bob.operatorImageName "@" (index .Values.bob.operatorImageDigest .Values.global.arch) | replace "cp.stg.icr.io/cpopen/" "cp.stg.icr.io/cp/" }}
+          imagePullPolicy: IfNotPresent
+          name: manager
+          env:
+            - name: WATCH_NAMESPACE
+              value: {{ .Values.global.instanceNamespace }}
+          envFrom:
+            - configMapRef:
+                name: ibm-pg-operator-operand-images
+                optional: true
+            - configMapRef:
+                name: bob-operand-images
+          ports:
+            - containerPort: 8081
+              name: health
+              protocol: TCP
+          securityContext:
+            privileged: false
+            readOnlyRootFilesystem: true
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - "ALL"
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 8081
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          readinessProbe:
+            httpGet:
+              path: /readyz
+              port: 8081
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          resources:
+            {{- toYaml .Values.bob.operator.resources | nindent 12 }}
+          volumeMounts:
+          - name: model-secrets
+            mountPath: /etc/model-secrets
+            readOnly: true
+          - name: model-config
+            mountPath: /etc/model-config/config.yaml
+            subPath: config.yaml
+            readOnly: true
+      volumes:
+      - name: model-config
+        configMap:
+          name: bob-inference-model-config
+          optional: true
+      - name: model-secrets
+        secret:
+          secretName: bob-inference-model-secrets
+          optional: true
+      serviceAccountName: ibm-bob-operator
+      terminationGracePeriodSeconds: 10
+      imagePullSecrets:
+        - name: {{ .Values.global.imagePullSecret }}

@@ -1,0 +1,21 @@
+{{- $watchNamespaces := .Values.global.tetheredNamespaces | default list -}}
+{{- if .Values.global.instanceNamespace -}}
+{{- $watchNamespaces = append $watchNamespaces .Values.global.instanceNamespace -}}
+{{- end -}}
+{{- $watchNamespaces = prepend $watchNamespaces .Values.global.operatorNamespace }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    component-id: '{{ .Chart.Name }}'
+    icpdsupport/addOnId: ibm-pg-operator
+    icpdsupport/app: database
+    icpdsupport/module: ibm-pg-operator
+  name: ibm-pg-operator-config
+  namespace: {{ .Values.global.operatorNamespace }}
+data:
+  OPERATOR_NAMESPACE: {{ .Values.global.operatorNamespace }}
+  WATCH_NAMESPACE: "{{ uniq $watchNamespaces | join "," }}"
+  INHERITED_ANNOTATIONS: "productID, productMetric, productName, productVersion"
+  INHERITED_LABELS: "component, release, icpdsupport/*, app, app.kubernetes.io/*"
+  ENABLE_INSTANCE_MANAGER_INPLACE_UPDATES: "true"

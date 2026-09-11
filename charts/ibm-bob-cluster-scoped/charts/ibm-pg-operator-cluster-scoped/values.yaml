@@ -1,0 +1,10 @@
+# Default values for the chart
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+global:
+  arch: amd64
+  operatorNamespace: "ibm-pg-system"
+  instanceNamespace: "ibm-pg-system"
+  tetheredNamespaces: []
+  imagePullPrefix: icr.io
+  imagePullSecret: "ibm-entitlement-key"

@@ -1,0 +1,8 @@
+icr.io,cpopen/ibm-usage-metering-operator,1.0.6,sha256:1318d9e4ebc22ea48fc1c8182e59d09fd121889a37b11b68b979cd55c0ab75c0,list
+icr.io,cpopen/ibm-usage-metering-operator,1.0.6-amd64,sha256:64996f5e470ff49714c367e22967fd5ee1421da625aee3b37bcde24e83365190,amd64
+icr.io,cpopen/ibm-usage-metering-operator,1.0.6-ppc64le,sha256:bd118c378a9ff62fe5b4a6f0e25cc9d9fa4c3d5495b9bef40759a9d7c97dd2de,ppc64le
+icr.io,cpopen/ibm-usage-metering-operator,1.0.6-s390x,sha256:ab5d389ffc4b644b88b330ed20a489c70c5561334de3fa9dcffd815a159c29dd,s390x
+icr.io,cpopen/cpfs/ibm-usage-metering-instance,1.0.6,sha256:81946b523bc9671e9ab476303c8de261f1975e06db9f6aea41502b7c01408c3f,list
+icr.io,cpopen/cpfs/ibm-usage-metering-instance,1.0.6-amd64,sha256:ac53751f41816ca19f6a7a7ced23b876f242dd5780fbd6e97cfbae392f378afa,amd64
+icr.io,cpopen/cpfs/ibm-usage-metering-instance,1.0.6-ppc64le,sha256:75a102de87c60fef337684caae5f7336b0c839385a8ecf37ac11ad3bcffc5c48,ppc64le
+icr.io,cpopen/cpfs/ibm-usage-metering-instance,1.0.6-s390x,sha256:8d4cb045dcf11fa220596c83fc9bc845684872dedf651e0428d4a572f73e4f81,s390x

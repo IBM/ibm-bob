@@ -1,0 +1,41 @@
+---
+bob-admin:
+  imageName: cp/cpd/bob-admin
+  imageDigests:
+    amd64: sha256:0c103bc96fe3d954abc6582828b26407cb9972d73cb08171afd95e8afc9f4291 # pragma: allowlist secret
+bob-admin-db:
+  imageName: cp/cpd/bob-admin-db
+  imageDigests:
+    amd64: sha256:6f367f6ee1dee50668956472a53519f361f0841d5fc54d7259ba95a1eedf4fee # pragma: allowlist secret
+bob-admin-ui:
+  imageName: cp/cpd/bob-admin-ui
+  imageDigests:
+    amd64: sha256:87b002e59c9dcdca13d54fb658275ab2c4a67337083b286da4392e294024c7a8 # pragma: allowlist secret
+bob-authn:
+  imageName: cp/cpd/bob-authn
+  imageDigests:
+    amd64: sha256:dfdf8b05e67967a429d9fd463d1884677e229ffe308adaad3525252b9f2c0874 # pragma: allowlist secret
+bob-authz:
+  imageName: cp/cpd/bob-authz
+  imageDigests:
+    amd64: sha256:672d89e465dbbd621144654dc941cf8c83f1fb300a0d0e188b9fdccc218b5929 # pragma: allowlist secret
+bob-gateway:
+  imageName: cp/cpd/bob-gateway
+  imageDigests:
+    amd64: sha256:d51b30537c923d119ddff0350a46a2394a4407560578e4b5c54d56bec4a51f09 # pragma: allowlist secret
+bob-inference:
+  imageName: cp/cpd/bob-inference
+  imageDigests:
+    amd64: sha256:a5bbb26c79d216e57310b8669790290ad628bd774aee26c64653f4b5f8b291b0 # pragma: allowlist secret
+bob4z-shell-proxy-bob2:
+  imageName: cp/cpd/bob4z-shell-proxy-bob2
+  imageDigests:
+    amd64: sha256:bfe0efb8d97326d3ad85d6f37d3889c11fbab6558a0fed97a83ea3c738acf977
+bob4z-shell-proxy-ragapi:
+  imageName: cp/cpd/bob4z-shell-proxy-ragapi
+  imageDigests:
+    amd64: sha256:7d17cd9fa477b70784b1ff709382c8bcd437ae8a95ef33829d49f8b158547972
+bob4z-shell-proxy-zlookup:
+  imageName: cp/cpd/bob4z-shell-proxy-zlookup
+  imageDigests:
+    amd64: sha256:90b353aa8c0e24e9b2f2d18afe9cc9037f171a0eba7421a0232245032670400d

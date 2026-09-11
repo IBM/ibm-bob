@@ -1,0 +1,50 @@
+# Model Gateway Configuration Template for Dev
+# Run: ./bobctl install --model-config path/to/config-model-gateway.yaml
+
+models:
+  - model_name: mistral-medium-35
+    openai_compatible:
+      model: mistral-medium-35
+      base_url: https://mistral-medium-35-model.boa-mistral-h200-cluster-f18709624cfb91d3559a89e9f9fc27f7-0000.ca-tor.containers.appdomain.cloud
+      api_key: dummy  # pragma: allowlist secret
+      insecure_skip_verify: true
+    model_info:
+      exposed: true
+      max_input_tokens: 128000
+      max_output_tokens: 4096
+      input_cost_per_token: 0.00000015
+      output_cost_per_token: 0.0000006
+      supports_function_calling: true
+      supports_tool_choice: true
+      mode: chat
+
+  - model_name: gpt-4o-mini
+    openai_compatible:
+      model: gpt-4o-mini
+      base_url: https://llm-mock-server.bobair.boa-mistral-h200-cluster-f18709624cfb91d3559a89e9f9fc27f7-0000.ca-tor.containers.appdomain.cloud
+      api_key: dummy  # pragma: allowlist secret
+      insecure_skip_verify: true
+    model_info:
+      exposed: true
+      max_input_tokens: 131072
+      input_cost_per_token: 0.00000015
+      output_cost_per_token: 0.0000006
+      supports_function_calling: true
+      supports_tool_choice: true
+      mode: chat
+
+  - model_name: gpt-oss-20b
+    openai_compatible:
+      model: openai/gpt-oss-20b
+      base_url: http://gpt-oss-20b-predictor-bobgptmodel.apps.wca4z-backend-ocp08.cp.fyre.ibm.com
+      api_key: dummy  # pragma: allowlist secret
+      insecure_skip_verify: true
+    model_info:
+      exposed: true
+      max_input_tokens: 128000
+      max_output_tokens: 4096
+      input_cost_per_token: 0.00000015
+      output_cost_per_token: 0.0000006
+      supports_function_calling: true
+      supports_tool_choice: true
+      mode: chat

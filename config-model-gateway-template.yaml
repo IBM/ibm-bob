@@ -1,0 +1,171 @@
+# Model Gateway Configuration Template
+# Copy this file, name it anything, and fill in your value of the --model-config flag.
+# Run: ./bobctl install --model-config <filename>.yaml
+
+# ── Credential anchors (shared across model entries via YAML merge keys) ─────
+#
+# Define credentials once here and reference them with <<: *anchor-name in
+# any model entry below. Remove anchors you don't need.
+
+# AWS Bedrock credentials — referenced by bedrock models.
+x-aws-bedrock-auth: &aws-bedrock-auth
+  region: us-east-1                          # AWS region where your Bedrock endpoint lives
+  access_key_id: env.AWS_ACCESS_KEY          # env.<VAR> reads from the container environment
+  secret_access_key: env.AWS_SECRET_ACCESS_KEY
+
+# Google Vertex AI credentials — referenced by Gemini models.
+x-vertex-auth: &vertex-auth
+  project: my-gcp-project                 # GCP project ID
+  location: global                        # Vertex AI region / "global" for Global API
+  credentials: env.BOB_GEMINI_CREDENTIALS # Service-account JSON, base64-encoded
+
+# ── Shared model anchors (optional) ──────────────────────────────────────────
+#
+# Merge a full model block across several entries to avoid repetition.
+# Example: all Gemini 2.5 Pro variants share the same provider config and costs.
+
+x-my-base-model: &my-base-model
+  vertex:                                 # or: openai_compatible / bedrock
+    model: gemini-2.5-pro
+    <<: *vertex-auth
+  model_info:
+    exposed: true
+    max_input_tokens: 200000
+    max_output_tokens: 12000
+    input_cost_per_token: 0.00000125
+    output_cost_per_token: 0.00001
+    cache_read_input_token_cost: 0.000000125
+    supports_reasoning: true
+    mode: chat
+
+# ── Models ───────────────────────────────────────────────────────────────────
+#
+# Each entry must have a unique model_name. The name is the identifier clients
+# send in the `model` field of an API request.
+#
+# Provider types (pick one per model):
+#   openai_compatible — any OpenAI-compatible REST endpoint (Azure, …)
+#   bedrock           — AWS Bedrock invoke endpoint
+#   vertex            — Google Vertex AI (Gemini)
+#   weighted_router   — virtual model that splits traffic across other models
+#
+# model_info fields:
+#   exposed                       — true: visible in /models list; false: internal-only
+#   max_input_tokens              — context window size
+#   max_output_tokens             — maximum tokens the model may generate
+#   input_cost_per_token          — cost in USD per input token (used for usage metering)
+#   output_cost_per_token         — cost in USD per output token
+#   cache_read_input_token_cost   — cost for cache-hit input tokens (prompt caching)
+#   cache_creation_input_token_cost — cost to write a new cache entry
+#   supports_prompt_caching       — true if the model supports prompt caching
+#   supports_function_calling     — true if the model supports tool/function calls
+#   supports_tool_choice          — true if tool_choice param is honoured
+#   supports_reasoning            — true if the model supports a reasoning_effort param
+#   mode                          — chat | embedding | image_generation
+
+models:
+  # ── Example: OpenAI-compatible model (e.g. Azure OpenAI) ─────────────────
+  - model_name: my-gpt-model
+    openai_compatible:
+      model: gpt-4o                          # Model ID as expected by the provider
+      base_url: https://<resource>.cognitiveservices.azure.com/openai
+      api_key: env.BOB_AZURE_API_KEY          # env.<VAR> reads from the container environment
+    model_info:
+      exposed: true
+      max_input_tokens: 128000
+      max_output_tokens: 4096
+      input_cost_per_token: 0.0000025
+      output_cost_per_token: 0.000010
+      # cache_read_input_token_cost: 0.00000125
+      supports_function_calling: true
+      supports_tool_choice: true
+      mode: chat
+
+  # ── Example: AWS Bedrock model ────────────────────────────────────────────
+  - model_name: my-bedrock-model
+    bedrock:
+      model: us.anthropic.claude-3-5-sonnet-20241022-v2:0
+      <<: *aws-bedrock-auth            # merge credentials anchor defined above
+    fallbacks:                         # optional: ordered list of fallback model names
+      - my-fallback-model
+    model_info:
+      exposed: false
+      max_input_tokens: 200000
+      max_output_tokens: 8192
+      input_cost_per_token: 0.000003
+      output_cost_per_token: 0.000015
+      cache_creation_input_token_cost: 0.00000375
+      cache_read_input_token_cost: 0.0000003
+      supports_prompt_caching: true
+      supports_function_calling: true
+      supports_tool_choice: true
+      mode: chat
+
+  # ── Example: Google Vertex AI (Gemini) model ──────────────────────────────
+  - model_name: my-gemini-model
+    vertex:
+      model: gemini-2.5-pro
+      <<: *vertex-auth                 # merge credentials anchor defined above
+    model_info:
+      exposed: true
+      max_input_tokens: 200000
+      max_output_tokens: 12000
+      input_cost_per_token: 0.00000125
+      output_cost_per_token: 0.00001
+      cache_read_input_token_cost: 0.000000125
+      supports_reasoning: true
+      mode: chat
+
+  # ── Example: Weighted router (virtual model) (WIP) ──────────────────────────────
+  # A router has no direct provider — it dispatches to concrete model names.
+  
+  - model_name: premium
+    weighted_router:
+      model: my-bedrock-model          # default model when no `when` clause matches
+      weighted_router:
+        pools:
+          - when:
+              type: header
+              header:
+                name: x-subscription-type   # HTTP header to inspect
+                value: ibm                  # required header value to activate this pool
+            routes:
+              - model: my-experimental-model
+                weight: 1.0
+    model_info:
+      exposed: true
+      max_input_tokens: 200000
+      max_output_tokens: 12000
+      supports_prompt_caching: true
+      supports_function_calling: true
+      supports_tool_choice: true
+      mode: chat
+
+  # ── Example: Complexity router (virtual model) (WIP) ────────────────────────────
+  # Routes each request to a different model based on detected query complexity.
+
+  - model_name: smart-router
+    provider:
+      type: complexity_router
+      model: premium                   # fallback when tier is unclassified
+      complexity_router:
+        tiers:
+          SIMPLE: my-fast-cheap-model
+          MEDIUM: premium
+          COMPLEX: premium
+          REASONING: premium
+    model_info:
+      exposed: true
+      mode: chat
+
+  # ── Example: Static response sentinel (WIP) ────────────────────────────────────
+  # Returns a hardcoded response — useful for routing no-op requests cheaply.
+
+  - model_name: greetings
+    provider:
+      type: static_response
+      model: ~
+      static_response:
+        content: "Hello! How can I help you today?"
+    model_info:
+      exposed: false

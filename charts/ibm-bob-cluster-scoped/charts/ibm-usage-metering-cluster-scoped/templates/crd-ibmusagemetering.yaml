@@ -1,0 +1,343 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.17.1
+  name: ibmusagemeterings.operator.ibm.com
+  labels:
+    component-id: {{ .Chart.Name }}
+spec:
+  group: operator.ibm.com
+  names:
+    kind: IBMUsageMetering
+    listKind: IBMUsageMeteringList
+    plural: ibmusagemeterings
+    singular: ibmusagemetering
+  scope: Namespaced
+  versions:
+    - name: v1
+      schema:
+        openAPIV3Schema:
+          description: IBMUsageMetering is the Schema for the ibmusagemeterings API
+          properties:
+            apiVersion:
+              description: |-
+                APIVersion defines the versioned schema of this representation of an object.
+                Servers should convert recognized schemas to the latest internal value, and
+                may reject unrecognized values.
+                More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+              type: string
+            kind:
+              description: |-
+                Kind is a string value representing the REST resource this object represents.
+                Servers may infer this from the endpoint the client submits requests to.
+                Cannot be updated.
+                In CamelCase.
+                More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+              type: string
+            metadata:
+              type: object
+            spec:
+              description: IBMUsageMeteringSpec defines the desired state of IBMUsageMetering
+              properties:
+                clusterID:
+                  description: Unique ID of reporting cluster for this instance
+                  type: string
+                clusterName:
+                  description: |-
+                    What is the name of this reporting cluster in multi-cluster system.
+                    If not provided, CLUSTER_ID will be used as CLUSTER_NAME on the operand level
+                  type: string
+                containers:
+                  description: Operand container setup
+                  properties:
+                    instance:
+                      description: Operand deployment configuration (instance config)
+                      properties:
+                        imagePullSecrets:
+                          description: Image pull secrets used to pull an image from a private container image registry
+                          items:
+                            type: string
+                          type: array
+                        resourceRequirements:
+                          description: Resource requests and limits. Defaults are used if any of the fields is unspecified.
+                          properties:
+                            claims:
+                              description: |-
+                                Claims lists the names of resources, defined in spec.resourceClaims,
+                                that are used by this container.
+
+                                This is an alpha field and requires enabling the
+                                DynamicResourceAllocation feature gate.
+
+                                This field is immutable. It can only be set for containers.
+                              items:
+                                description: ResourceClaim references one entry in PodSpec.ResourceClaims.
+                                properties:
+                                  name:
+                                    description: |-
+                                      Name must match the name of one entry in pod.spec.resourceClaims of
+                                      the Pod where this field is used. It makes that resource available
+                                      inside a container.
+                                    type: string
+                                  request:
+                                    description: |-
+                                      Request is the name chosen for a request in the referenced claim.
+                                      If empty, everything from the claim is made available, otherwise
+                                      only the result of this request.
+                                    type: string
+                                required:
+                                  - name
+                                type: object
+                              type: array
+                              x-kubernetes-list-map-keys:
+                                - name
+                              x-kubernetes-list-type: map
+                            limits:
+                              additionalProperties:
+                                anyOf:
+                                  - type: integer
+                                  - type: string
+                                pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                x-kubernetes-int-or-string: true
+                              description: |-
+                                Limits describes the maximum amount of compute resources allowed.
+                                More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+                              type: object
+                            requests:
+                              additionalProperties:
+                                anyOf:
+                                  - type: integer
+                                  - type: string
+                                pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                x-kubernetes-int-or-string: true
+                              description: |-
+                                Requests describes the minimum amount of compute resources required.
+                                If Requests is omitted for a container, it defaults to Limits if that is explicitly specified,
+                                otherwise to an implementation-defined value. Requests cannot exceed Limits.
+                                More info: https://kubernetes.io/docs/concepts/configuration/manage-resources-containers/
+                              type: object
+                          type: object
+                      type: object
+                      x-kubernetes-preserve-unknown-fields: true
+                  type: object
+                  x-kubernetes-preserve-unknown-fields: true
+                createRBAC:
+                  description: |-
+                    CreateRBAC determines whether to create RBAC resources (ServiceAccount, Role, RoleBinding) for the operand.
+                    Defaults to true.
+                  type: boolean
+                envVariables:
+                  description: Environment variables passed directly to the operand
+                  items:
+                    description: EnvVar represents an environment variable present in a Container.
+                    properties:
+                      name:
+                        description: Name of the environment variable. Must be a C_IDENTIFIER.
+                        type: string
+                      value:
+                        description: |-
+                          Variable references $(VAR_NAME) are expanded
+                          using the previously defined environment variables in the container and
+                          any service environment variables. If a variable cannot be resolved,
+                          the reference in the input string will be unchanged. Double $$ are reduced
+                          to a single $, which allows for escaping the $(VAR_NAME) syntax: i.e.
+                          "$$(VAR_NAME)" will produce the string literal "$(VAR_NAME)".
+                          Escaped references will never be expanded, regardless of whether the variable
+                          exists or not.
+                          Defaults to "".
+                        type: string
+                      valueFrom:
+                        description: Source for the environment variable's value. Cannot be used if value is not empty.
+                        properties:
+                          configMapKeyRef:
+                            description: Selects a key of a ConfigMap.
+                            properties:
+                              key:
+                                description: The key to select.
+                                type: string
+                              name:
+                                default: ""
+                                description: |-
+                                  Name of the referent.
+                                  This field is effectively required, but due to backwards compatibility is
+                                  allowed to be empty. Instances of this type with an empty value here are
+                                  almost certainly wrong.
+                                  More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                                type: string
+                              optional:
+                                description: Specify whether the ConfigMap or its key must be defined
+                                type: boolean
+                            required:
+                              - key
+                            type: object
+                            x-kubernetes-map-type: atomic
+                          fieldRef:
+                            description: |-
+                              Selects a field of the pod: supports metadata.name, metadata.namespace, `metadata.labels['<KEY>']`, `metadata.annotations['<KEY>']`,
+                              spec.nodeName, spec.serviceAccountName, status.hostIP, status.podIP, status.podIPs.
+                            properties:
+                              apiVersion:
+                                description: Version of the schema the FieldPath is written in terms of, defaults to "v1".
+                                type: string
+                              fieldPath:
+                                description: Path of the field to select in the specified API version.
+                                type: string
+                            required:
+                              - fieldPath
+                            type: object
+                            x-kubernetes-map-type: atomic
+                          resourceFieldRef:
+                            description: |-
+                              Selects a resource of the container: only resources limits and requests
+                              (limits.cpu, limits.memory, limits.ephemeral-storage, requests.cpu, requests.memory and requests.ephemeral-storage) are currently supported.
+                            properties:
+                              containerName:
+                                description: 'Container name: required for volumes, optional for env vars'
+                                type: string
+                              divisor:
+                                anyOf:
+                                  - type: integer
+                                  - type: string
+                                description: Specifies the output format of the exposed resources, defaults to "1"
+                                pattern: ^(\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))(([KMGTPE]i)|[numkMGTPE]|([eE](\+|-)?(([0-9]+(\.[0-9]*)?)|(\.[0-9]+))))?$
+                                x-kubernetes-int-or-string: true
+                              resource:
+                                description: 'Required: resource to select'
+                                type: string
+                            required:
+                              - resource
+                            type: object
+                            x-kubernetes-map-type: atomic
+                          secretKeyRef:
+                            description: Selects a key of a secret in the pod's namespace
+                            properties:
+                              key:
+                                description: The key of the secret to select from.  Must be a valid secret key.
+                                type: string
+                              name:
+                                default: ""
+                                description: |-
+                                  Name of the referent.
+                                  This field is effectively required, but due to backwards compatibility is
+                                  allowed to be empty. Instances of this type with an empty value here are
+                                  almost certainly wrong.
+                                  More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                                type: string
+                              optional:
+                                description: Specify whether the Secret or its key must be defined
+                                type: boolean
+                            required:
+                              - key
+                            type: object
+                            x-kubernetes-map-type: atomic
+                        type: object
+                    required:
+                      - name
+                    type: object
+                  type: array
+                eventsRetention:
+                  description: EventsRetention defines config of the events config map cleanup functionality
+                  properties:
+                    frequency:
+                      description: Frequency defines how often should the cleanup happen, in the cron format
+                      pattern: (@(annually|yearly|monthly|weekly|daily|midnight|hourly))|((((\d+,)+\d+|(\d+(\/|-)\d+)|\d+|\*) ?){5,7})
+                      type: string
+                    period:
+                      description: Period defines the number of days to retain events in the events config map before cleanup
+                      type: integer
+                  type: object
+                  x-kubernetes-preserve-unknown-fields: true
+                license:
+                  description: License acceptance
+                  properties:
+                    accept:
+                      description: |-
+                        By installing IBM Usage Metering, you Accept the license terms for the particular IBM product
+                        for which you are deploying this component: ibm.biz/lsvc-lic.
+                      type: boolean
+                      x-kubernetes-validations:
+                        - message: 'Please accept the license terms of this component (ibm.biz/lsvc-lic) by setting a field spec.license.accept: true'
+                          rule: self == true
+                  required:
+                    - accept
+                  type: object
+                  x-kubernetes-preserve-unknown-fields: true
+                secrets:
+                  description: Secrets contains config of IBM Usage Metering secrets
+                  properties:
+                    uploadTokenSecretName:
+                      description: |-
+                        Name of the secret containing the token for IBM Usage Metering upload API. Must contain `token` field with the
+                        token string. If a non-existing secret is referenced here, the operator will create a new resource and generate
+                        a new token. If empty, a default name will be used.
+                      type: string
+                  type: object
+                  x-kubernetes-preserve-unknown-fields: true
+                sender:
+                  description: Sender contains config(s) of connection(s) to external components, such as IBM License Service Reporter
+                  properties:
+                    reporter:
+                      description: Sender configuration for IBM License Service Reporter
+                      properties:
+                        configMapName:
+                          description: Name of the configmap with IBM License Service Reporter URL and certificate
+                          type: string
+                        secretName:
+                          description: Name of the secret with IBM License Service Reporter authentication token
+                          type: string
+                      required:
+                        - configMapName
+                        - secretName
+                      type: object
+                      x-kubernetes-preserve-unknown-fields: true
+                    softwareCentral:
+                      description: Sender configuration for Software Central upload
+                      properties:
+                        anonymize:
+                          description: |-
+                            Anonymize uploads to Software Central, so that no confidential
+                            information is included in payloads. Defaults to false.
+                          type: boolean
+                        enable:
+                          description: Enable Software Central upload. Defaults to false.
+                          type: boolean
+                        entitlementKeySecret:
+                          description: Name of the secret containing IBM Entitlement Key. Required when enable is true.
+                          type: string
+                        frequency:
+                          description: Frequency for Software Central export in cron format; by default data is sent every day 5 minutes past midnight.
+                          pattern: (@(annually|yearly|monthly|weekly|daily|midnight|hourly))|((((\d+,)+\d+|(\d+(\/|-)\d+)|\d+|\*) ?){5,7})
+                          type: string
+                        sandbox:
+                          description: Route traffic to Software Central sandbox environment instead of the production one. Defaults to false.
+                          type: boolean
+                      type: object
+                      x-kubernetes-preserve-unknown-fields: true
+                  type: object
+                  x-kubernetes-preserve-unknown-fields: true
+                snapshotAdditionalProperties:
+                  additionalProperties:
+                    type: string
+                  description: Supply UMS snapshot with additional (key, value) metadata.
+                  type: object
+                version:
+                  description: CR version
+                  type: string
+              type: object
+              x-kubernetes-preserve-unknown-fields: true
+            status:
+              description: IBMUsageMeteringStatus defines the observed state of IBMUsageMetering
+              properties:
+                message:
+                  type: string
+                phase:
+                  type: string
+              type: object
+              x-kubernetes-preserve-unknown-fields: true
+          type: object
+      served: true
+      storage: true
+      subresources:
+        status: {}

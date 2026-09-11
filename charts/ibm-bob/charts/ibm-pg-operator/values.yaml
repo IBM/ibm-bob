@@ -1,0 +1,18 @@
+# Default values for the chart
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+global:
+  arch: amd64
+  operatorNamespace: "ibm-pg-system"
+  instanceNamespace: "ibm-pg-system"
+  tetheredNamespaces: []
+  imagePullPrefix: icr.io
+  imagePullSecret: "ibm-entitlement-key"
+ibmPgOperator:
+  operatorImageDigest:
+    amd64: "sha256:593293d42bf9e9ab1bf0ddadef36e0d57c00cc1f21e95ea4fe81e50755e29f63"
+    ppc64le: "sha256:3d902de07ca819ba5f0c501abc0834600b5720a2906e563db0c2ed143bb550d6"
+    s390x: "sha256:99f10f5b193e1151e9555a3ca0d60ae12f0813bf1658fd918b1ba6c4f658755c"
+  devImagePullPrefix: ""
+  operatorImageName: cpopen/ibm-pg-operator
+  operandImageRepository: cpopen/ibm-pg
