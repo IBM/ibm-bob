@@ -28,7 +28,7 @@ jobs:
           node-version: 20
 
       - name: Install semantic-release plugins
-        run: npm install
+        run: npm ci
 
       - name: Prepare release assets
         run: bash .github/scripts/prepare-assets.sh
