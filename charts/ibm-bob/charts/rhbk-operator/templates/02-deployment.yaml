@@ -1,0 +1,55 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+{{ include "rhbkOperator.labels" . | indent 4}}
+  name: "{{ .Chart.Name }}"
+  namespace: "{{ .Values.global.operatorNamespace }}"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+{{ include "rhbkOperator.selectorLabels" . | indent 6}}
+  template:
+    metadata:
+      annotations:
+        targetNamespaces: "{{ .Values.global.instanceNamespace }}"
+      labels:
+        control-plane: "{{ .Chart.Name }}"
+        name: "{{ .Chart.Name }}"
+{{ include "rhbkOperator.labels" . | indent 8}}
+    spec:
+      imagePullSecrets:
+        - name: "{{ .Values.global.imagePullSecret }}"
+      containers:
+        - env:
+            - name: RELATED_IMAGE_KEYCLOAK
+              value: '{{ include "image.operandPrefix" . }}/{{ .Values.rhbkOperator.operandImages.keycloak.imageName }}@{{ index .Values.rhbkOperator.operandImages.keycloak.imageDigest .Values.global.arch}}'
+            - name: QUARKUS_OPERATOR_SDK_CONTROLLERS_KEYCLOAKREALMIMPORTCONTROLLER_NAMESPACES
+              valueFrom:
+                fieldRef:
+                  fieldPath: "metadata.annotations['targetNamespaces']"
+            - name: QUARKUS_OPERATOR_SDK_CONTROLLERS_KEYCLOAKCONTROLLER_NAMESPACES
+              valueFrom:
+                fieldRef:
+                  fieldPath: "metadata.annotations['targetNamespaces']"
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: OPERATOR_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+          image: '{{ include "image.operatorPrefix" . }}/{{ .Values.rhbkOperator.operatorImageName }}@{{ index .Values.rhbkOperator.operatorImageDigest .Values.global.arch }}'
+          imagePullPolicy: IfNotPresent
+          name: "{{ .Chart.Name }}"
+          resources:
+            limits:
+              cpu: 700m
+              memory: 450Mi
+            requests:
+              cpu: 300m
+              memory: 450Mi
+      serviceAccountName: "{{ .Chart.Name }}"

@@ -1,0 +1,4 @@
+cp.icr.io,cp/cpd/keycloak-rhel9,26.6.4-2,sha256:cf44f50b2dc7deb3c650e7d0ec5ca2f61fa100acfd4d8d04ab56ed76b48a107b,list
+cp.icr.io,cp/cpd/keycloak-rhel9,26.6.4-2-amd64,sha256:ffedd9c68012f3ce5e6d3287775c589fcbe5ba6858afc6b2fd47663fce4b138b,amd64
+cp.icr.io,cp/cpd/keycloak-rhel9-operator,26.6.4-2,sha256:044ad30bad46bb0f48dba842e28198e3a9de961b5941bfc09491119e2fd72d1e,list
+cp.icr.io,cp/cpd/keycloak-rhel9-operator,26.6.4-2-amd64,sha256:2e00190cd88d026765df408d00a63cee8ceb3cd27ddb43e41b37c85936f4e926,amd64

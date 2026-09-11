@@ -1,0 +1,164 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ibm-redis-cp-aux-ckpt-cm
+  namespace: {{ .Values.global.operatorNamespace }}
+  labels:
+    cpdfwk.version: 5.3.1
+    cpdfwk.spec-version: 2.0.0
+    cpdfwk.module: ibm-redis-cp-aux
+    cpdfwk.component: ibm-redis-cp
+    cpdfwk.aux-kind: checkpoint
+    cpdfwk.managed-by: ibm-cpd-sre
+    cpdfwk.name: ibm-redis-cp-aux-checkpoint-cm
+    cpdfwk.vendor: ibm
+    app.kubernetes.io/instance: ibm-redis-cp-aux
+    app.kubernetes.io/name: ibm-redis-cp-aux
+    app.kubernetes.io/version: 5.3.1
+    component-id: ibm-redis-cp
+    icpdsupport/addOnId: ibm-redis-cp
+data:
+  aux-meta: |-
+    name: ibm-redis-cp-aux
+    description: "IBM Redis CP CM"
+    version: 5.3.1
+    component: ibm-redis-cp
+    aux-kind: checkpoint
+    priority-order: 100
+    spec-version: 2.0.0
+    addon-name: ibm-redis-cp
+    support-instances: false
+    owner: ibm-redis-cp
+  precheck-meta: |
+    backup-hooks:
+      exec-rules: []
+  checkpoint-meta: |
+    exec-hooks:
+      exec-rules: []
+  plan-meta: |
+    appType: ibm-redis-cp
+    groups:
+        - name: ibm-redis-cp-operator-resources
+          type: resource
+          includeClusterResources: true
+          includedResourceTypes:
+            - deployments
+            - roles
+            - rolebindings
+            - serviceaccounts
+            - configmaps
+          labelSelector: "component-id,icpdsupport/addOnId=ibm-redis-cp"
+          backupRef: ${RESOURCE_BACKUP}
+        - name: ibm-redis-cp-operator-cluster-resources
+          type: resource
+          includeClusterResources: true
+          includedResourceTypes:
+            - clusterroles
+          labelSelector: "component-id=ibm-redis-cp-cluster-scoped,icpdsupport/addOnId=ibm-redis-cp"
+          backupRef: ${RESOURCE_BACKUP}       
+    workflows:
+      - name: restore-pre-operators   
+        sequence: 
+            - group: ibm-redis-cp-operator-resources
+            - group: ibm-redis-cp-operator-cluster-resources
+      - name: restore-post-operators  
+        sequence: []
+      - name: restore-pre-operands    
+        sequence: []
+      - name: restore-operands
+        sequence: []
+      - name: restore-post-operands
+        sequence: []
+      - name: restore-post-namespacescope
+        sequence: []
+  backup-meta: |-
+    pre-hooks:
+      exec-rules: []
+    post-hooks:
+      exec-rules: []
+  restore-meta: |- 
+    post-hooks:
+      exec-rules: []
+  backup-validation-meta: |- 
+    backup-validations: []
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ibm-redis-cp-aux-br-cm
+  namespace: {{ .Values.global.operatorNamespace }}
+  labels:
+    cpdfwk.version: 5.3.1
+    cpdfwk.spec-version: 2.0.0
+    cpdfwk.module: ibm-redis-cp-aux
+    cpdfwk.component: ibm-redis-cp
+    cpdfwk.aux-kind: br
+    cpdfwk.managed-by: ibm-cpd-sre
+    cpdfwk.name: ibm-redis-cp-aux-br-cm
+    cpdfwk.vendor: ibm
+    app.kubernetes.io/instance: ibm-redis-cp-aux
+    app.kubernetes.io/name: ibm-redis-cp-aux
+    app.kubernetes.io/version: 5.3.1
+    component-id: ibm-redis-cp
+    icpdsupport/addOnId: ibm-redis-cp
+data:
+  aux-meta: |-
+    name: ibm-redis-cp-aux
+    description: "IBM Redis CP CM"
+    version: 5.3.1
+    component: ibm-redis-cp
+    aux-kind: br
+    priority-order: 100
+    spec-version: 2.0.0
+    addon-name: ibm-redis-cp
+    support-instances: false
+    owner: ibm-redis-cp
+  precheck-meta: |
+    backup-hooks:
+      exec-rules: []
+  plan-meta: |
+    appType: ibm-redis-cp
+    groups:
+        - name: ibm-redis-cp-operator-resources
+          type: resource
+          includeClusterResources: true
+          includedResourceTypes:
+            - deployments
+            - roles
+            - rolebindings
+            - serviceaccounts
+            - configmaps
+          labelSelector: "component-id,icpdsupport/addOnId=ibm-redis-cp"
+          backupRef: ${RESOURCE_BACKUP}
+        - name: ibm-redis-cp-operator-cluster-resources
+          type: resource
+          includeClusterResources: true
+          includedResourceTypes:
+            - clusterroles
+          labelSelector: "component-id=ibm-redis-cp-cluster-scoped,icpdsupport/addOnId=ibm-redis-cp"
+          backupRef: ${RESOURCE_BACKUP}
+    workflows:
+      - name: restore-pre-operators   
+        sequence: 
+            - group: ibm-redis-cp-operator-resources
+            - group: ibm-redis-cp-operator-cluster-resources
+      - name: restore-post-operators  
+        sequence: []
+      - name: restore-pre-operands    
+        sequence: []
+      - name: restore-operands
+        sequence: []
+      - name: restore-post-operands
+        sequence: []
+      - name: restore-post-namespacescope
+        sequence: []
+  backup-meta: |-
+    pre-hooks:
+      exec-rules: []
+    post-hooks:
+      exec-rules: []
+  restore-meta: |- 
+    post-hooks:
+      exec-rules: []
+  backup-validation-meta: |- 
+    backup-validations: []

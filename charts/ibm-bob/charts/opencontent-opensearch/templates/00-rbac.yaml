@@ -1,0 +1,613 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    component-id: {{ .Chart.Name }}
+    icpdsupport/addOnId: 'opencontent-opensearch'
+  name: ibm-opensearch-operator-controller-manager
+  namespace: {{ .Values.global.operatorNamespace }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  labels:
+    component-id: {{ .Chart.Name }}
+    icpdsupport/addOnId: 'opencontent-opensearch'
+  name: ibm-opensearch-operator-role
+  namespace: {{ .Values.global.operatorNamespace }}
+rules:
+- apiGroups:
+    - ""
+  resources:
+    - configmaps
+  verbs:
+    - get
+    - list
+    - watch
+    - create
+    - update
+    - patch
+    - delete
+- apiGroups:
+    - coordination.k8s.io
+  resources:
+    - leases
+  verbs:
+    - get
+    - list
+    - watch
+    - create
+    - update
+    - patch
+    - delete
+- apiGroups:
+    - ""
+  resources:
+    - events
+  verbs:
+    - create
+    - patch
+- apiGroups:
+    - ""
+  resources:
+    - configmaps
+    - secrets
+  verbs:
+    - create
+    - delete
+    - get
+    - list
+    - patch
+    - update
+    - watch
+- apiGroups:
+    - ""
+  resources:
+    - configmaps/status
+    - pods/log
+  verbs:
+    - get
+- apiGroups:
+    - ""
+  resources:
+    - endpoints
+  verbs:
+    - get
+    - list
+    - watch
+- apiGroups:
+    - ""
+  resources:
+    - persistentvolumeclaims
+    - serviceaccounts
+    - services
+  verbs:
+    - create
+    - delete
+    - get
+    - list
+    - update
+    - watch
+- apiGroups:
+    - ""
+  resources:
+    - pods
+  verbs:
+    - create
+    - delete
+    - list
+    - patch
+    - update
+    - watch
+- apiGroups:
+    - batch
+  resources:
+    - jobs
+  verbs:
+    - create
+    - delete
+    - get
+    - list
+    - update
+    - watch
+- apiGroups:
+    - cert-manager.io
+  resources:
+    - certificates
+    - issuers
+  verbs:
+    - create
+    - delete
+    - get
+    - list
+    - update
+    - watch
+- apiGroups:
+    - cert-manager.io
+  resources:
+    - certificates/status
+  verbs:
+    - get
+- apiGroups:
+    - monitoring.coreos.com
+  resources:
+    - servicemonitors
+  verbs:
+    - create
+    - get
+    - list
+{{- if or (not (hasKey $.Values.opencontentOpensearch "enableNetworkpolicies")) (eq (lower (toString $.Values.opencontentOpensearch.enableNetworkpolicies)) "true") }}
+- apiGroups:
+    - networking.k8s.io
+  resources:
+    - networkpolicies
+  verbs:
+    - create
+    - delete
+    - get
+    - list
+    - update
+    - watch
+{{- end }}
+- apiGroups:
+    - opensearch.cloudpackopen.ibm.com
+  resources:
+    - clusters
+    - nodepools
+  verbs:
+    - create
+    - delete
+    - get
+    - list
+    - patch
+    - update
+    - watch
+- apiGroups:
+    - opensearch.cloudpackopen.ibm.com
+  resources:
+    - clusters/finalizers
+    - nodepools/finalizers
+  verbs:
+    - update
+- apiGroups:
+    - opensearch.cloudpackopen.ibm.com
+  resources:
+    - clusters/status
+    - nodepools/status
+  verbs:
+    - get
+    - patch
+    - update
+- apiGroups:
+    - rbac.authorization.k8s.io
+  resources:
+    - rolebindings
+    - roles
+  verbs:
+    - create
+    - get
+    - list
+    - update
+    - watch
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  labels:
+    component-id: {{ .Chart.Name }}
+    icpdsupport/addOnId: 'opencontent-opensearch'
+  name: ibm-opensearch-operator-rolebinding
+  namespace: {{ .Values.global.operatorNamespace }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: ibm-opensearch-operator-role
+subjects:
+- kind: ServiceAccount
+  name: ibm-opensearch-operator-controller-manager
+  namespace: {{ .Values.global.operatorNamespace }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  labels:
+    component-id: {{ .Chart.Name }}
+    icpdsupport/addOnId: 'opencontent-opensearch'
+  name: ibm-opensearch-operator-role
+  namespace: {{ .Values.global.instanceNamespace }}
+rules:
+- apiGroups:
+    - ""
+  resources:
+    - configmaps
+  verbs:
+    - get
+    - list
+    - watch
+    - create
+    - update
+    - patch
+    - delete
+- apiGroups:
+    - coordination.k8s.io
+  resources:
+    - leases
+  verbs:
+    - get
+    - list
+    - watch
+    - create
+    - update
+    - patch
+    - delete
+- apiGroups:
+    - ""
+  resources:
+    - events
+  verbs:
+    - create
+    - patch
+- apiGroups:
+    - ""
+  resources:
+    - configmaps
+    - secrets
+  verbs:
+    - create
+    - delete
+    - get
+    - list
+    - patch
+    - update
+    - watch
+- apiGroups:
+    - ""
+  resources:
+    - configmaps/status
+    - pods/log
+  verbs:
+    - get
+- apiGroups:
+    - ""
+  resources:
+    - endpoints
+  verbs:
+    - get
+    - list
+    - watch
+- apiGroups:
+    - ""
+  resources:
+    - persistentvolumeclaims
+    - serviceaccounts
+    - services
+  verbs:
+    - create
+    - delete
+    - get
+    - list
+    - update
+    - watch
+- apiGroups:
+    - ""
+  resources:
+    - pods
+  verbs:
+    - create
+    - delete
+    - list
+    - patch
+    - update
+    - watch
+- apiGroups:
+    - batch
+  resources:
+    - jobs
+  verbs:
+    - create
+    - delete
+    - get
+    - list
+    - update
+    - watch
+- apiGroups:
+    - cert-manager.io
+  resources:
+    - certificates
+    - issuers
+  verbs:
+    - create
+    - delete
+    - get
+    - list
+    - update
+    - watch
+- apiGroups:
+    - cert-manager.io
+  resources:
+    - certificates/status
+  verbs:
+    - get
+- apiGroups:
+    - monitoring.coreos.com
+  resources:
+    - servicemonitors
+  verbs:
+    - create
+    - get
+    - list
+{{- if or (not (hasKey $.Values.opencontentOpensearch "enableNetworkpolicies")) (eq (lower (toString $.Values.opencontentOpensearch.enableNetworkpolicies)) "true") }}
+- apiGroups:
+    - networking.k8s.io
+  resources:
+    - networkpolicies
+  verbs:
+    - create
+    - delete
+    - get
+    - list
+    - update
+    - watch
+{{- end }}
+- apiGroups:
+    - opensearch.cloudpackopen.ibm.com
+  resources:
+    - clusters
+    - nodepools
+  verbs:
+    - create
+    - delete
+    - get
+    - list
+    - patch
+    - update
+    - watch
+- apiGroups:
+    - opensearch.cloudpackopen.ibm.com
+  resources:
+    - clusters/finalizers
+    - nodepools/finalizers
+  verbs:
+    - update
+- apiGroups:
+    - opensearch.cloudpackopen.ibm.com
+  resources:
+    - clusters/status
+    - nodepools/status
+  verbs:
+    - get
+    - patch
+    - update
+- apiGroups:
+    - rbac.authorization.k8s.io
+  resources:
+    - rolebindings
+    - roles
+  verbs:
+    - create
+    - get
+    - list
+    - update
+    - watch
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  labels:
+    component-id: {{ .Chart.Name }}
+    icpdsupport/addOnId: 'opencontent-opensearch'
+  name: ibm-opensearch-operator-rolebinding
+  namespace: {{ .Values.global.instanceNamespace }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: ibm-opensearch-operator-role
+subjects:
+- kind: ServiceAccount
+  name: ibm-opensearch-operator-controller-manager
+  namespace: {{ .Values.global.operatorNamespace }}
+{{- range $i := .Values.global.tetheredNamespaces }}  
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  labels:
+    component-id: {{ $.Chart.Name }}
+    icpdsupport/addOnId: 'opencontent-opensearch'
+  name: ibm-opensearch-operator-role
+  namespace: {{ $i }}
+rules:
+- apiGroups:
+    - ""
+  resources:
+    - configmaps
+  verbs:
+    - get
+    - list
+    - watch
+    - create
+    - update
+    - patch
+    - delete
+- apiGroups:
+    - coordination.k8s.io
+  resources:
+    - leases
+  verbs:
+    - get
+    - list
+    - watch
+    - create
+    - update
+    - patch
+    - delete
+- apiGroups:
+    - ""
+  resources:
+    - events
+  verbs:
+    - create
+    - patch
+- apiGroups:
+    - ""
+  resources:
+    - configmaps
+    - secrets
+  verbs:
+    - create
+    - delete
+    - get
+    - list
+    - patch
+    - update
+    - watch
+- apiGroups:
+    - ""
+  resources:
+    - configmaps/status
+    - pods/log
+  verbs:
+    - get
+- apiGroups:
+    - ""
+  resources:
+    - endpoints
+  verbs:
+    - get
+    - list
+    - watch
+- apiGroups:
+    - ""
+  resources:
+    - persistentvolumeclaims
+    - serviceaccounts
+    - services
+  verbs:
+    - create
+    - delete
+    - get
+    - list
+    - update
+    - watch
+- apiGroups:
+    - ""
+  resources:
+    - pods
+  verbs:
+    - create
+    - delete
+    - list
+    - patch
+    - update
+    - watch
+- apiGroups:
+    - batch
+  resources:
+    - jobs
+  verbs:
+    - create
+    - delete
+    - get
+    - list
+    - update
+    - watch
+- apiGroups:
+    - cert-manager.io
+  resources:
+    - certificates
+    - issuers
+  verbs:
+    - create
+    - delete
+    - get
+    - list
+    - update
+    - watch
+- apiGroups:
+    - cert-manager.io
+  resources:
+    - certificates/status
+  verbs:
+    - get
+- apiGroups:
+    - monitoring.coreos.com
+  resources:
+    - servicemonitors
+  verbs:
+    - create
+    - get
+    - list
+{{- if or (not (hasKey $.Values.opencontentOpensearch "enableNetworkpolicies")) (eq (lower (toString $.Values.opencontentOpensearch.enableNetworkpolicies)) "true") }}
+- apiGroups:
+    - networking.k8s.io
+  resources:
+    - networkpolicies
+  verbs:
+    - create
+    - delete
+    - get
+    - list
+    - update
+    - watch
+{{- end }}
+- apiGroups:
+    - opensearch.cloudpackopen.ibm.com
+  resources:
+    - clusters
+    - nodepools
+  verbs:
+    - create
+    - delete
+    - get
+    - list
+    - patch
+    - update
+    - watch
+- apiGroups:
+    - opensearch.cloudpackopen.ibm.com
+  resources:
+    - clusters/finalizers
+    - nodepools/finalizers
+  verbs:
+    - update
+- apiGroups:
+    - opensearch.cloudpackopen.ibm.com
+  resources:
+    - clusters/status
+    - nodepools/status
+  verbs:
+    - get
+    - patch
+    - update
+- apiGroups:
+    - rbac.authorization.k8s.io
+  resources:
+    - rolebindings
+    - roles
+  verbs:
+    - create
+    - get
+    - list
+    - update
+    - watch
+
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  labels:
+    component-id: {{ $.Chart.Name }}
+    icpdsupport/addOnId: 'opencontent-opensearch'
+  name: ibm-opensearch-operator-rolebinding
+  namespace: {{ $i }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: ibm-opensearch-operator-role
+subjects:
+- kind: ServiceAccount
+  name: ibm-opensearch-operator-controller-manager
+  namespace: '{{ $.Values.global.operatorNamespace }}'
+{{- end }}

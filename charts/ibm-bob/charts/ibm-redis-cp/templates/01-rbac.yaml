@@ -1,0 +1,141 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  labels:
+    component-id: {{ .Chart.Name }}
+    {{- with .Values.resourceLabels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+  name: ibm-redis-cp-operator-serviceaccount
+  namespace: {{ .Values.global.operatorNamespace }}
+
+{{- $operaterNamespace := .Values.global.operatorNamespace }}
+{{- $namespaces := .Values.global.tetheredNamespaces | default list -}}
+{{- $namespaces = append $namespaces .Values.global.operatorNamespace -}}
+{{- if .Values.global.instanceNamespace }}
+  {{- $namespaces = append $namespaces .Values.global.instanceNamespace }}
+{{- end }}
+
+{{- range $i := $namespaces }}
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  labels:
+    component-id: {{ $.Chart.Name }}
+    {{- with $.Values.resourceLabels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+  name: ibm-redis-cp-role
+  namespace: {{ $i }}
+rules:
+- apiGroups:
+  - ''
+  resources:
+  - secrets
+  - pods
+  - pods/exec
+  - persistentvolumeclaims
+  - serviceaccounts
+  - configmaps
+  - services
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - ''
+  resources:
+  - endpoints
+  - pods/log
+  - events
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - apps
+  resources:
+  - deployments
+  - deployments/scale
+  - statefulsets
+  - statefulsets/scale
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - route.openshift.io
+  resources:
+  - routes
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - redis.ibm.com
+  resources:
+  - rediscps
+  - rediscps/status
+  - rediscps/finalizers
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - rbac.authorization.k8s.io
+  resources:
+  - roles
+  - rolebindings
+  verbs:
+  - create
+  - delete
+  - patch
+  - get
+  - list
+  - update
+  - watch
+- apiGroups:
+  - coordination.k8s.io
+  resources:
+  - leases
+  verbs:
+  - create
+  - get
+  - list
+  - update
+  - watch
+  - patch
+  - delete
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  labels:
+    component-id: {{ $.Chart.Name }}
+    {{- with $.Values.resourceLabels }}
+      {{- toYaml . | nindent 4 }}
+    {{- end }}
+  name: ibm-redis-cp-rolebinding
+  namespace: {{ $i }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: ibm-redis-cp-role
+subjects:
+- kind: ServiceAccount
+  name: ibm-redis-cp-operator-serviceaccount
+  namespace: '{{ $.Values.global.operatorNamespace }}'
+{{- end }}

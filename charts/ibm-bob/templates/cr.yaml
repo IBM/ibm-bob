@@ -1,0 +1,31 @@
+{{- $globals := pick .Values.global "imagePullPrefix" "imagePullSecret" "blockStorageClass" "fileStorageClass" }}
+{{- $spec := omit .Values.bob "crVersion" "operator" "operatorImageName" "operatorImageDigest" "modelGateway" }}
+{{- $crVersion := .Values.bob.crVersion }}
+{{- if .Release.IsUpgrade }}
+  {{- $cur_cr := lookup "bob.ibm.com/v1beta1" "Bob" .Release.Namespace "bob-cr" }}
+  {{- if $cur_cr }}
+    {{- $crVersion = index $cur_cr.spec "version" }}
+  {{- end }}
+{{- end -}}
+---
+apiVersion: bob.ibm.com/v1beta1
+kind: Bob
+metadata:
+  name: bob-cr
+  {{- if .Values.global.instanceNamespace }}
+  namespace: {{ .Values.global.instanceNamespace }}
+  {{- end }}
+  labels:
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/name: ibm-bob
+    app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+spec:
+  license:
+    accept: {{ .Values.global.licenseAccept }}
+  version: {{ .Values.bob.crVersion }}
+  {{- range $key, $value := $globals }}
+    {{- $key | nindent 2 }}: {{ $value }}
+  {{- end }}
+  {{- if $spec }}
+    {{- $spec | toYaml | nindent 2 }}
+  {{- end }}

@@ -1,0 +1,158 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    component-id: {{ .Chart.Name }}
+    icpdsupport/addOnId: 'opencontent-opensearch'
+  name: ibm-opensearch-operator-controller-manager
+  namespace: {{ .Values.global.operatorNamespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: ibm-opensearch-operator
+      app.kubernetes.io/managed-by: ibm-opensearch-operator
+      app.kubernetes.io/name: ibm-opensearch-operator
+      icpdsupport/addOnId: 'opencontent-opensearch'
+  strategy: {}
+  template:
+    metadata:
+      annotations:
+        kubectl.kubernetes.io/default-container: manager
+        productChargedContainers: "\u201CAll\u201D"
+        productID: 3be23cc87d094c5f8bd6d73fe149248c
+        productMetric: FREE
+        productName: Cloud Pak Open
+        productVersion: 1.0.0
+      labels:
+        app.kubernetes.io/instance: ibm-opensearch-operator
+        app.kubernetes.io/managed-by: ibm-opensearch-operator
+        app.kubernetes.io/name: ibm-opensearch-operator
+        icpdsupport/addOnId: 'opencontent-opensearch'
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/arch
+                operator: In
+                values:
+                - amd64
+                - arm64
+                - ppc64le
+                - s390x
+              - key: kubernetes.io/os
+                operator: In
+                values:
+                - linux
+      containers:
+      - args:
+        - --leader-elect
+        command:
+        - /manager
+        env:
+        {{- $watchNamespaces := .Values.global.tetheredNamespaces | default list -}}
+        {{- if .Values.global.instanceNamespace -}}
+        {{- $watchNamespaces = append $watchNamespaces .Values.global.instanceNamespace -}}
+        {{- end -}}
+        {{- $watchNamespaces = prepend $watchNamespaces .Values.global.operatorNamespace }}
+        - name: WATCH_NAMESPACE
+          value: {{ uniq $watchNamespaces | join "," | quote }}
+        {{- $operandPullPrefix := .Values.opencontentOpensearch.entitledImagePullPrefix -}}
+        {{- if eq .Values.global.imagePullPrefix "icr.io" -}}
+        {{- $operandPullPrefix = "cp.icr.io" -}}
+        {{- else if (not (empty .Values.global.imagePullPrefix)) -}}
+        {{- $operandPullPrefix = .Values.global.imagePullPrefix -}}
+        {{- end }}
+        {{- $operatorPullPrefix := .Values.opencontentOpensearch.operatorImagePullPrefix -}}
+        {{- if (not (empty .Values.global.imagePullPrefix)) -}}
+        {{- $operatorPullPrefix = .Values.global.imagePullPrefix -}}
+        {{- end }}
+
+        - name: LEADER_ELECTION_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: RECONCILE_WAIT_TIME_MINUTES
+          value: "5"
+        - name: RELATED_IMAGE_OPENSEARCH_MIN
+          value: {{ $operandPullPrefix }}/{{ .Values.opencontentOpensearch.entitledImageRegistryNamespace }}/opencontent-ibm-opensearch-min-3.5.0@sha256:aabefa877189112c211442980aff76c6a4fcdbc79d0527135f79460c49775238
+        - name: RELATED_IMAGE_OPENSEARCH_PLUGINS
+          value: {{ $operandPullPrefix }}/{{ .Values.opencontentOpensearch.entitledImageRegistryNamespace }}/opencontent-ibm-opensearch-plugins-3.5.0@sha256:4eddce7b4a6e181aefa9334e6c8ef24dae15d3456a916a472834d16ac7530807
+        - name: RELATED_IMAGE_OPENSEARCH_SECURITY
+          value: {{ $operandPullPrefix }}/{{ .Values.opencontentOpensearch.entitledImageRegistryNamespace }}/opencontent-ibm-opensearch-plugin-security-3.5.0.0@sha256:a3dd04832d6357cfd2e6e459ad9b57a6b29b40252d6646b007463e6c5a334210
+        - name: RELATED_IMAGE_BASE_IMAGE
+          value: {{ $operandPullPrefix }}/{{ .Values.opencontentOpensearch.entitledImageRegistryNamespace }}/opencontent-ibm-opensearch-base-9@sha256:3dffa454fa07734951ffe494969991941b180f25a3be8f3c8643fc886931accc
+        - name: RELATED_IMAGE_OPENSEARCH_PLUGIN_ISM
+          value: {{ $operandPullPrefix }}/{{ .Values.opencontentOpensearch.entitledImageRegistryNamespace }}/opencontent-ibm-opensearch-plugin-ism-3.5.0.0@sha256:a42704cbcb03d11a630f71c42a1a9c3d4c6a0316a0d272f99c2096a8ea9f4d9e
+        - name: RELATED_IMAGE_OPENSEARCH_PLUGIN_KNN
+          value: {{ $operandPullPrefix }}/{{ .Values.opencontentOpensearch.entitledImageRegistryNamespace }}/opencontent-ibm-opensearch-plugin-knn-3.5.0.0@sha256:c0d21af1b8a72b04e63b06fca95e427c2bb097d4abc60b905202b2a520dceb13
+        - name: RELATED_IMAGE_OPENSEARCH_PLUGIN_ML_COMMON
+          value: {{ $operandPullPrefix }}/{{ .Values.opencontentOpensearch.entitledImageRegistryNamespace }}/opencontent-ibm-opensearch-plugin-ml-common-3.5.0.0@sha256:5c8c945e579cc2b80486aa65cf099e296eba6ae54ae3ac4f40300fce991d204c
+        - name: RELATED_IMAGE_OPENSEARCH_PLUGIN_NEURAL_SEARCH
+          value: {{ $operandPullPrefix }}/{{ .Values.opencontentOpensearch.entitledImageRegistryNamespace }}/opencontent-ibm-opensearch-plugin-neural-search-3.5.0.0@sha256:4cc744a581e9a44290aee4f2ed2198e49f0c831c4536b542127cd60a11b6fc0e
+        - name: RELATED_IMAGE_OPENSEARCH_PLUGIN_JOB_SCHEDULER
+          value: {{ $operandPullPrefix }}/{{ .Values.opencontentOpensearch.entitledImageRegistryNamespace }}/opencontent-ibm-opensearch-plugin-job-scheduler-3.5.0.0@sha256:2057fe1ed659d8763344a680a100699648650ec10b726816bd72e997c335b3e1
+        - name: OPENSEARCH_VERSION
+          value: 3.5.0
+        - name: OPENSEARCH_SECURITY_VERSION
+          value: 3.5.0.0
+        - name: OPENSEARCH_PLUGIN_ISM_VERSION
+          value: 3.5.0.0
+        - name: OPENSEARCH_PLUGIN_KNN_VERSION
+          value: 3.5.0.0
+        - name: OPENSEARCH_PLUGIN_ML_COMMON_VERSION
+          value: 3.5.0.0
+        - name: OPENSEARCH_PLUGIN_NEURAL_SEARCH_VERSION
+          value: 3.5.0.0
+        - name: OPENSEARCH_PLUGIN_JOB_SCHEDULER_VERSION
+          value: 3.5.0.0
+        - name: RELEASE_VERSION
+          value: 1.4.5
+        {{- if and (eq .Values.global.arch "amd64") (not (empty .Values.opencontentOpensearch.operatorImageDigest.amd64)) }}
+        image: '{{ $operatorPullPrefix }}/{{ .Values.opencontentOpensearch.operatorImageName }}@{{ .Values.opencontentOpensearch.operatorImageDigest.amd64 }}'       
+        {{- else if and (eq .Values.global.arch "ppc64le") (not (empty .Values.opencontentOpensearch.operatorImageDigest.ppc64le)) }}
+        image: '{{ $operatorPullPrefix }}/{{ .Values.opencontentOpensearch.operatorImageName }}@{{ .Values.opencontentOpensearch.operatorImageDigest.ppc64le }}'
+        {{- else if and (eq .Values.global.arch "s390x") (not (empty .Values.opencontentOpensearch.operatorImageDigest.s390x)) }}
+        image: '{{ $operatorPullPrefix }}/{{ .Values.opencontentOpensearch.operatorImageName }}@{{ .Values.opencontentOpensearch.operatorImageDigest.s390x }}'
+        {{- else if and (eq .Values.global.arch "arm64") (not (empty .Values.opencontentOpensearch.operatorImageDigest.arm64)) }}
+        image: '{{ $operatorPullPrefix }}/{{ .Values.opencontentOpensearch.operatorImageName }}@{{ .Values.opencontentOpensearch.operatorImageDigest.arm64 }}'
+        {{- end }}
+        imagePullPolicy: IfNotPresent
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8081
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        name: manager
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: 8081
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        resources:
+          limits:
+            cpu: 100m
+            memory: 512Mi
+          requests:
+            cpu: 5m
+            memory: 16Mi
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+          privileged: false
+          readOnlyRootFilesystem: true
+          runAsNonRoot: true
+      imagePullSecrets:
+      - name: {{ .Values.global.imagePullSecret }}
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      serviceAccountName: ibm-opensearch-operator-controller-manager
+      terminationGracePeriodSeconds: 10

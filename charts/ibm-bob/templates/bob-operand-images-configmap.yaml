@@ -1,0 +1,17 @@
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: bob-operand-images
+  namespace: {{ .Values.global.operatorNamespace }}
+  labels:
+    app.kubernetes.io/name: ibm-bob
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+data:
+{{- $digests := .Files.Get "files/digests.yaml" | fromYaml }}
+{{- range $key, $imageData := $digests }}
+{{- $envName := $key | replace "-" "_" | upper }}
+{{- $digest := index $imageData.imageDigests $.Values.global.arch }}
+  {{ $envName }}_IMAGE: "{{ include "bob.image.operandPrefix" $ }}/{{ $imageData.imageName }}@{{ $digest }}"
+{{- end }}

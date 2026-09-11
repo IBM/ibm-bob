@@ -1,0 +1,341 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.21.0
+  name: bobldaps.bob.ibm.com
+  labels:
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/name: ibm-bob
+    app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+spec:
+  group: bob.ibm.com
+  names:
+    kind: BobLDAP
+    listKind: BobLDAPList
+    plural: bobldaps
+    singular: bobldap
+  scope: Namespaced
+  versions:
+    - additionalPrinterColumns:
+        - jsonPath: .spec.vendor
+          name: Vendor
+          type: string
+        - jsonPath: .spec.connectionUrl
+          name: Connection URL
+          type: string
+        - jsonPath: .status.conditions[?(@.type=='Ready')].status
+          name: Ready
+          type: string
+        - jsonPath: .metadata.creationTimestamp
+          name: Age
+          type: date
+      name: v1beta1
+      schema:
+        openAPIV3Schema:
+          description: |-
+            BobLDAP configures an LDAP/AD user federation provider in the Bob platform's
+            Keycloak realm. The operator reconciles this CR by registering the LDAP
+            provider in Keycloak via the Admin REST API and mounting any CA cert into
+            the Keycloak truststore via spec.truststores on the Keycloak CR.
+            Owned by the Bob CR via metadata.ownerReferences.
+          properties:
+            apiVersion:
+              description: |-
+                APIVersion defines the versioned schema of this representation of an object.
+                Servers should convert recognized schemas to the latest internal value, and
+                may reject unrecognized values.
+                More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+              type: string
+            kind:
+              description: |-
+                Kind is a string value representing the REST resource this object represents.
+                Servers may infer this from the endpoint the client submits requests to.
+                Cannot be updated.
+                In CamelCase.
+                More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+              type: string
+            metadata:
+              type: object
+            spec:
+              description: spec defines the desired LDAP federation configuration.
+              properties:
+                adminEmails:
+                  description: |-
+                    adminEmails is the list of user email addresses that should be
+                    bootstrapped as bob-admin users for this LDAP provider. All other
+                    LDAP users are treated as regular bob-users.
+                  items:
+                    type: string
+                  type: array
+                  x-kubernetes-list-type: set
+                bindDn:
+                  description: |-
+                    bindDn is the DN of the service account Keycloak uses to bind to the
+                    directory. Leave unset for anonymous bind. The operator derives authType
+                    automatically: absent bindDn = none, present = simple.
+                  type: string
+                bindPasswordSecret:
+                  description: |-
+                    bindPasswordSecret is a reference to a Secret containing the bind
+                    password. Required when bindDn is set.
+                  properties:
+                    key:
+                      description: key is the key within the Secret whose value is used.
+                      type: string
+                    name:
+                      description: name is the name of the Secret.
+                      type: string
+                  required:
+                    - key
+                    - name
+                  type: object
+                connectionUrl:
+                  description: |-
+                    connectionUrl is the full LDAP or LDAPS URL including protocol and port.
+                    Example: ldaps://ldap.example.com:636
+                  pattern: ^ldaps?://.+
+                  type: string
+                customUserSearchFilter:
+                  description: |-
+                    customUserSearchFilter is an additional LDAP filter ANDed into every
+                    user search query. Leave unset unless non-user entries under usersDn
+                    need to be excluded. Example: (uid=*)
+                  type: string
+                domains:
+                  description: |-
+                    domains is the list of email domains served by this LDAP directory
+                    (e.g. ["example.com", "subsidiary.example.com"]).
+                    Each entry will be inserted into the bob-admin idp_domain table so
+                    that users whose email matches one of these domains are routed to
+                    this LDAP-backed identity provider.
+                  items:
+                    type: string
+                  minItems: 1
+                  type: array
+                  x-kubernetes-list-type: set
+                importEnabled:
+                  default: true
+                  description: |-
+                    importEnabled controls whether Keycloak bulk-imports users from this
+                    provider. Set to false for very large directories
+                    where users should be resolved on-demand at login time only.
+                  type: boolean
+                ldapsCACertSecret:
+                  description: |-
+                    ldapsCACertSecret is a reference to a Secret containing the PEM-encoded
+                    CA certificate for the LDAPS endpoint. Required when the server
+                    certificate is signed by a private or internal CA.
+                  properties:
+                    key:
+                      description: key is the key within the Secret whose value is used.
+                      type: string
+                    name:
+                      description: name is the name of the Secret.
+                      type: string
+                  required:
+                    - key
+                    - name
+                  type: object
+                priority:
+                  default: 0
+                  description: |-
+                    priority controls the order in which Keycloak queries this provider
+                    when authenticating a user. Lower numbers are checked first.
+                    When multiple BobLDAP CRs exist, assign distinct priorities to control
+                    the lookup order.
+                  type: integer
+                rdnLDAPAttribute:
+                  description: |-
+                    rdnLDAPAttribute is the LDAP attribute used as the RDN component of user
+                    entries. Usually the same as usernameLDAPAttribute.
+                  type: string
+                searchScope:
+                  default: 2
+                  description: |-
+                    searchScope controls the LDAP search depth.
+                    1 = one-level (direct children of usersDn only).
+                    2 = subtree (usersDn and all descendants). Default: 2.
+                  enum:
+                    - 1
+                    - 2
+                  type: integer
+                useTruststoreSpi:
+                  default: always
+                  description: |-
+                    useTruststoreSpi controls when Keycloak consults its truststore SPI for
+                    this LDAP connection. The truststore SPI reads CA certs from
+                    spec.truststores on the Keycloak CR (mounted as secrets).
+
+                      always    — use the truststore SPI for all connections (default).
+                                  Required for private/internal CAs and self-signed certs.
+                                  Use this for any on-prem LDAP with a non-public CA.
+                      ldapsOnly — use the truststore SPI only for ldaps:// connections.
+                                  Only correct when the LDAP server cert is signed by a
+                                  publicly-trusted CA already in the JVM default truststore
+                                  (e.g. DigiCert, Let's Encrypt). ldapsCACertSecret is not
+                                  needed in this case.
+                      never     — truststore never consulted. Use for plain ldap:// without
+                                  TLS, or when TLS verification is intentionally disabled.
+
+                    Note: Keycloak does not support presenting a client certificate for
+                    mutual TLS (mTLS). LDAP servers configured with olcTLSVerifyClient=demand
+                    are not compatible with Keycloak LDAP federation.
+                  enum:
+                    - ldapsOnly
+                    - always
+                    - never
+                  type: string
+                userAttributeMappings:
+                  description: |-
+                    userAttributeMappings maps LDAP attributes to Keycloak user model
+                    attributes. Each entry generates a user-attribute-ldap-mapper.
+                    The username mapper is always generated automatically from
+                    usernameLDAPAttribute and does not need to be declared here.
+                  items:
+                    description: LDAPAttributeMapping maps an LDAP attribute to a Keycloak user model attribute.
+                    properties:
+                      ldapAttribute:
+                        description: |-
+                          ldapAttribute is the name of the attribute in the LDAP directory.
+                          Example: preferredIdentity, givenName, sn
+                        type: string
+                      userModelAttribute:
+                        description: userModelAttribute is the Keycloak user model attribute to map to.
+                        enum:
+                          - email
+                          - firstName
+                          - lastName
+                        type: string
+                    required:
+                      - ldapAttribute
+                      - userModelAttribute
+                    type: object
+                  type: array
+                userObjectClasses:
+                  description: |-
+                    userObjectClasses is a comma-separated list of LDAP object classes that
+                    identify a user entry.
+                    Example: inetOrgPerson,organizationalPerson,person
+                  type: string
+                usernameLDAPAttribute:
+                  description: |-
+                    usernameLDAPAttribute is the LDAP attribute mapped to the Keycloak
+                    username. Common values: uid (OpenLDAP), sAMAccountName (AD).
+                  type: string
+                usersDn:
+                  description: |-
+                    usersDn is the DN of the subtree where user entries live.
+                    Example: ou=People,dc=example,dc=com
+                  type: string
+                uuidLDAPAttribute:
+                  description: |-
+                    uuidLDAPAttribute is the LDAP attribute used as the stable unique
+                    identifier for each user entry. Must be immutable.
+                    Common values: entryUUID (OpenLDAP), objectGUID (AD), uid (Tivoli).
+                  type: string
+                vendor:
+                  description: |-
+                    vendor is the LDAP vendor. Controls wire-level protocol behaviour in
+                    Keycloak. Use "other" for standard OpenLDAP-compatible directories.
+                  enum:
+                    - other
+                    - ad
+                    - rhds
+                    - tivoli
+                    - edirectory
+                  type: string
+              required:
+                - connectionUrl
+                - domains
+                - rdnLDAPAttribute
+                - userObjectClasses
+                - usernameLDAPAttribute
+                - usersDn
+                - uuidLDAPAttribute
+                - vendor
+              type: object
+            status:
+              description: status defines the observed state of BobLDAP.
+              properties:
+                conditions:
+                  description: |-
+                    conditions represent the current state of the BobLDAP resource.
+
+                    Known condition types:
+                      - Ready:               LDAP provider is registered in Keycloak.
+                      - LDAPReachable:       Keycloak can reach the LDAP server (testConnection).
+                      - LDAPAuthenticated:   Keycloak bind credentials are valid (testAuthentication).
+                  items:
+                    description: Condition contains details for one aspect of the current state of this API Resource.
+                    properties:
+                      lastTransitionTime:
+                        description: |-
+                          lastTransitionTime is the last time the condition transitioned from one status to another.
+                          This should be when the underlying condition changed.  If that is not known, then using the time when the API field changed is acceptable.
+                        format: date-time
+                        type: string
+                      message:
+                        description: |-
+                          message is a human readable message indicating details about the transition.
+                          This may be an empty string.
+                        maxLength: 32768
+                        type: string
+                      observedGeneration:
+                        description: |-
+                          observedGeneration represents the .metadata.generation that the condition was set based upon.
+                          For instance, if .metadata.generation is currently 12, but the .status.conditions[x].observedGeneration is 9, the condition is out of date
+                          with respect to the current state of the instance.
+                        format: int64
+                        minimum: 0
+                        type: integer
+                      reason:
+                        description: |-
+                          reason contains a programmatic identifier indicating the reason for the condition's last transition.
+                          Producers of specific condition types may define expected values and meanings for this field,
+                          and whether the values are considered a guaranteed API.
+                          The value should be a CamelCase string.
+                          This field may not be empty.
+                        maxLength: 1024
+                        minLength: 1
+                        pattern: ^[A-Za-z]([A-Za-z0-9_,:]*[A-Za-z0-9_])?$
+                        type: string
+                      status:
+                        description: status of the condition, one of True, False, Unknown.
+                        enum:
+                          - "True"
+                          - "False"
+                          - Unknown
+                        type: string
+                      type:
+                        description: type of condition in CamelCase or in foo.example.com/CamelCase.
+                        maxLength: 316
+                        pattern: ^([a-z0-9]([-a-z0-9]*[a-z0-9])?(\.[a-z0-9]([-a-z0-9]*[a-z0-9])?)*/)?(([A-Za-z0-9][-A-Za-z0-9_.]*)?[A-Za-z0-9])$
+                        type: string
+                    required:
+                      - lastTransitionTime
+                      - message
+                      - reason
+                      - status
+                      - type
+                    type: object
+                  type: array
+                  x-kubernetes-list-map-keys:
+                    - type
+                  x-kubernetes-list-type: map
+                keycloakComponentID:
+                  description: |-
+                    keycloakComponentID is the UUID assigned by Keycloak when the LDAP
+                    user-storage provider component was created. Set by the operator after
+                    the first successful registration and used as the sole identity key on
+                    all subsequent reconciles — immune to name changes in the Keycloak UI.
+                  type: string
+              type: object
+          required:
+            - spec
+          type: object
+      served: true
+      storage: true
+      subresources:
+        status: {}

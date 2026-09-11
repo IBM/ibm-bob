@@ -1,0 +1,56 @@
+---
+# general values
+global:
+  arch: amd64
+  imagePullPrefix: icr.io
+  imagePullSecret: ibm-entitlement-key # pragma: allowlist secret
+  instanceNamespace: ibm-bob
+# subchart enablement
+ibm-usage-metering:
+  enabled: true
+ibm-pg-operator:
+  enabled: true
+ibm-redis-cp:
+  enabled: true
+rhbk-operator:
+  enabled: true
+opencontent-opensearch:
+  enabled: false
+# service values
+bob:
+  crVersion: 1.0.0
+  operatorImageName: cpopen/ibm-wca-bob-operator
+  operatorImageDigest:
+    amd64: sha256:c9fe3d5a6449ebc0c3f6a26dbf6dd191dba1183a3e6277e6ba56c0d88e9b010d # pragma: allowlist secret
+  operator:
+    # resource limits and requests
+    resources:
+      limits:
+        cpu: 500m
+        memory: 128Mi
+      requests:
+        cpu: 10m
+        memory: 64Mi
+    # pod affinity
+    affinity:
+      nodeAffinity:
+        requiredDuringSchedulingIgnoredDuringExecution:
+          nodeSelectorTerms:
+            - matchExpressions:
+                - key: kubernetes.io/arch
+                  operator: In
+                  values:
+                    - amd64
+                - key: kubernetes.io/os
+                  operator: In
+                  values:
+                    - linux
+    # pod's node selector
+    nodeSelector: {}
+    # pod's tolerations
+    tolerations: []
+    # topology spread constraints
+    topologySpreadConstraints: []
+  modelGateway:
+    modelConfig: ""
+    secrets: {}
